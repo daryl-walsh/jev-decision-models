@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run current file",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {"PYTHONPATH": "${workspaceFolder}"},
+            "justMyCode": false
+        },
+        {
+            "name": "Run current file (TINY, no download)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "python": "${workspaceFolder}/.venv/bin/python",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {"PYTHONPATH": "${workspaceFolder}", "TINY": "1"},
+            "justMyCode": false
+        }
+    ]
+}
