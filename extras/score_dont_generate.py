@@ -3,12 +3,12 @@
 A classification answer comes from a fixed list, so we write the JSON skeleton ourselves and ask
 the model one thing per field - which allowed answer goes here?
 
-Read the context once and keep its KV cache. Copy that cache once per field, push all the field
-names through in a single batch, and read one logit per field. Two forward passes, nothing sampled,
-and the JSON cannot come out malformed because we wrote it.
+Read the context once and keep its KV cache - in one sequence per field, which costs nothing
+extra because a cached cell can belong to many sequences. Push all the field names through in a
+single batch, each in its own sequence, and read one logit per field. Two forward passes, nothing
+sampled, and the JSON cannot come out malformed because we wrote it.
 
-Copying the cache and padding the short field names change nothing - run any field on its own and
-the logits agree to 7e-5 nats.
+Sharing the cache changes nothing - run any field on its own and the logits agree to float noise.
 """
 import pathlib
 import sys
@@ -16,37 +16,35 @@ import sys
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 import torch
 
-from common import CONTEXT, SCHEMA, compile_field, load, parallel_prompt, repeat_cache
+from common import CONTEXT, SCHEMA, compile_field, load, parallel_prompt
 
 tok, model = load()
 fields = [compile_field(tok, n, f) for n, f in SCHEMA.items()]
-inputs = tok(parallel_prompt(tok, CONTEXT, SCHEMA), add_special_tokens=False, return_tensors="pt").to(model.device)
+prompt = tok.encode(parallel_prompt(tok, CONTEXT, SCHEMA), add_special_tokens=False)
 
 for c in fields:
     print(f"  {c.name:<9} writes {c.suffix!r} then picks from "
           f"{[tok.decode(ids) for ids in c.cand_ids]}")
 
-out = model(**inputs, use_cache=True)
-cache = out.past_key_values
-P, F = inputs.input_ids.shape[1], len(fields)
+P, F = len(prompt), len(fields)
+model.clear()
+model.forward(prompt, range(P), [list(range(F))] * P)
 print("prefix tokens:", P, " fields:", F)
 
-lengths = [len(c.suffix_ids) for c in fields]
-W = max(lengths)
-suffixes = torch.tensor([c.suffix_ids + [tok.pad_token_id] * (W - len(c.suffix_ids)) for c in fields],
-                        device=model.device)
-suffix_mask = torch.tensor([[1] * n + [0] * (W - n) for n in lengths], device=model.device)
-attention = torch.cat([torch.ones(F, P, dtype=torch.long, device=model.device), suffix_mask], 1)
-print("suffix batch:", tuple(suffixes.shape), " attention:", tuple(attention.shape))
+tokens, positions, seqs, last = [], [], [], []
+for i, c in enumerate(fields):
+    tokens += c.suffix_ids
+    positions += range(P, P + len(c.suffix_ids))
+    seqs += [[i]] * len(c.suffix_ids)
+    last.append(len(tokens) - 1)
+print("suffix batch:", len(tokens), "tokens in", F, "sequences, no padding")
 
-out = model(input_ids=suffixes, attention_mask=attention,
-            past_key_values=repeat_cache(cache, F), use_cache=True)
-print("logits:", tuple(out.logits.shape))
+logits = model.forward(tokens, positions, seqs, outputs=last)
+print("logits:", tuple(logits.shape))
 
 for i, c in enumerate(fields):
-    logits = out.logits[i, lengths[i] - 1].float()
-    first = torch.tensor([ids[0] for ids in c.cand_ids], device=model.device)
-    probs = torch.softmax(logits[first], -1)
+    first = torch.tensor([ids[0] for ids in c.cand_ids])
+    probs = torch.softmax(logits[i][first], -1)
     winner = int(probs.argmax())
     print(f"{c.name:<9} -> {c.choices[winner]:<12} p={probs[winner]:.3f} "
           f"all={dict(zip(c.choices, [round(p, 3) for p in probs.tolist()]))} collision={c.collision}")

@@ -48,7 +48,7 @@ def confidence(probs):
     return 1 - entropy / math.log(len(probs))
 
 
-tok, model = load(attn_implementation="eager")
+tok, model = load()
 out = decide(tok, model, STATE, QUESTIONS)
 
 for name, field in QUESTIONS.items():

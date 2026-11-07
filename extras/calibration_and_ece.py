@@ -21,7 +21,7 @@ QUESTION = {"refund_requested": {"type": "boolean",
                                  "description": "Whether the customer is asking for money back"}}
 
 
-tok, model = load(attn_implementation="eager")
+tok, model = load()
 trie = build_trie(tok, QUESTION)
 scores, golds = [], []
 for text, gold in EXAMPLES:

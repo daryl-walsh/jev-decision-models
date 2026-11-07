@@ -1,20 +1,71 @@
 # Jev & RLCD, the short version
 
 Four small scripts, about two hours. Four ways to get a typed decision out of a transformer, inference only.
+The decoder runs locally through **llama.cpp** (via `llama-cpp-python`), from a GGUF file.
 
 ```bash
 uv venv --python 3.12 .venv
+# CPU build. For an NVIDIA GPU: CMAKE_ARGS="-DGGML_CUDA=on" uv pip install ...  (Metal is on by default on macOS)
 uv pip install --python .venv/bin/python -r requirements.txt
+
+# the model: Qwen's own GGUF of Qwen3-0.6B (hf is huggingface_hub's CLI: uvx --from huggingface_hub hf ...)
+hf download Qwen/Qwen3-0.6B-GGUF Qwen3-0.6B-Q8_0.gguf --local-dir models
 
 .venv/bin/python 1_vanilla_decoding.py
 .venv/bin/python 2_pure_encoding.py
 .venv/bin/python 3_pure_decoding.py
 ```
 
-`MODEL_ID` picks the decoder (default `Qwen/Qwen3-0.6B`, needs full softmax attention) and
-`ENCODER_ID` the encoder (default `answerdotai/ModernBERT-base`).
-`TINY=1` swaps in a 2-layer random model — instant, no download, meaningless numbers, right shapes.
-F5 in VS Code runs the open file with the project interpreter. `./verify.sh` runs everything.
+`MODEL_GGUF` picks the decoder (default `models/Qwen3-0.6B-Q8_0.gguf`; any Qwen3 GGUF works, and
+any other decoder whose GGUF carries a chat template) and `ENCODER_ID` the encoder (default
+`answerdotai/ModernBERT-base`, still loaded with transformers). `N_GPU_LAYERS` (default `-1`, all),
+`N_CTX` (4096), `N_SEQ_MAX` (64) and `FLASH_ATTN` (off) tune the llama.cpp context;
+`LLAMA_VERBOSE=1` shows its log. F5 in VS Code runs the open file with the project interpreter.
+`./verify.sh` runs everything.
+
+### Which GGUF, and why the numbers move
+
+Qwen publishes the 0.6B in one quantisation, Q8_0. It runs everything here, but its probabilities
+differ from the full-precision weights in the second or third decimal. To get the numbers the
+PyTorch version printed, convert the original weights yourself - they are bf16, so F32 is an exact
+upcast, which is what `.float()` did:
+
+```bash
+hf download Qwen/Qwen3-0.6B --local-dir hf/Qwen3-0.6B
+git clone --depth 1 https://github.com/ggml-org/llama.cpp && pip install -r llama.cpp/requirements.txt
+python llama.cpp/convert_hf_to_gguf.py hf/Qwen3-0.6B --outtype f32 --outfile models/Qwen3-0.6B-f32.gguf
+MODEL_GGUF=models/Qwen3-0.6B-f32.gguf .venv/bin/python 3_pure_decoding.py
+```
+
+The KV cache is kept in F32 and flash attention is off for the same reason: llama.cpp's flash
+attention computes in half precision internally, about 1e-2 nats of drift on the logits.
+`FLASH_ATTN=1` turns it back on when speed matters more than the third decimal.
+
+## Running on llama.cpp
+
+The PyTorch version shaped attention by hand: a 4-D mask, explicit `position_ids`, and
+`copy.deepcopy` of the KV cache. llama.cpp accepts none of those. Per token it takes a position and
+a list of **sequence ids**, and one cached cell may belong to many sequences (`kv_unified=True`).
+A token attends to the cells that hold its first sequence id at a position no later than its own.
+That is enough to say every mask in this repo:
+
+| PyTorch version | llama.cpp version |
+|---|---|
+| prefix KV cache, `copy.deepcopy` / `repeat_cache` per branch | prefix tokens in every branch's sequence, or `seq_cp` after the fact - cells gain an id, nothing is copied |
+| question mask: state + self, never other questions | segment id = sequence id; the state belongs to all of them |
+| trie DFS-interval ancestor mask | one sequence per candidate answer; each node belongs to every answer that runs through it |
+| hybrid mask, bidirectional state | two passes: the state with `causal=False`, then the questions causally on its cache |
+| `output_hidden_states=True` | `llama_set_embeddings` with pooling `NONE`: post-norm final hidden states |
+| `position_ids` | the per-token position in the batch, as before |
+
+`llamacpp.py` holds the binding layer (`Model.forward(tokens, positions, seqs, outputs)` and a
+tokenizer that renders the GGUF's own chat template); `common.py` keeps every function name and
+return shape of the original. llama.cpp also checks each batch: positions must be continuous per
+sequence, so a malformed layout fails loudly instead of returning plausible numbers.
+
+What does not port: backpropagation. `extras/rlcd_objective.py` trains the model itself, so it
+keeps the original PyTorch code, now in `common_hf.py` (`MODEL_ID`, `TINY=1` for a 2-layer random
+model). `2_pure_encoding.py` is a ModernBERT encoder and stays on transformers too.
 
 ## 1 — Vanilla decoding
 
@@ -54,7 +105,8 @@ question, and nothing can be cached, because changing the question changes every
                   never question 1           never question 0
 ```
 
-One sequence for everything, one pass, with an attention mask keeping the questions apart. Each
+One sequence for everything, one pass, with the questions kept apart - by an attention mask in
+PyTorch, by sequence ids here. Each
 question ends at a decision position — the point where the model is about to write its answer.
 Take the vocabulary logits there, keep only the rows for the options you allowed, and softmax over
 those. The model's own output head does the scoring, so nothing is trained and nothing can be
@@ -124,14 +176,14 @@ Depth, once the three files make sense. Each runs standalone.
 | `rlcd_training.py` | Laya's actual RLCD loop: proper-scoring-rule reward, GRPO advantage, temperature fit |
 | `train_the_head.py` | the trained readout, on file 3's vectors |
 | `score_dont_generate.py` | the frozen-model trick: score allowed answers, no training |
-| `candidate_tokens.py` | schema → token sequences, no model |
+| `candidate_tokens.py` | schema → token sequences, no model (reads only the GGUF's vocabulary) |
 | `first_token_collisions.py` | why one logit cannot separate `FRAUD` from `FRAUD_REVIEW` |
 | `hybrid_encoding.py` | prefix-LM: bidirectional state, causal questions, cache still valid |
 | `trie_ancestor_mask.py` | all fields and options in one pass via a DFS-interval mask |
 | `choice_score_noul.py` | Jev's three primitives in its published answer shape |
 | `score_depends_on_wording.py` | the same rubric scores 0.97, 1.46 or 1.98 depending on wording |
 | `calibration_and_ece.py` | reliability bins, ECE, a fitted temperature |
-| `rlcd_objective.py` | teacher forcing vs the contrastive loss, on a frozen-model scorer |
+| `rlcd_objective.py` | teacher forcing vs the contrastive loss, on a frozen-model scorer (PyTorch: it trains) |
 | `pointwise_vs_listwise.py` | our −0.0000 invariance against Jev's measured interaction |
 | `vs_laya.py` | Laya on the same 32 messages, with every caveat attached |
 

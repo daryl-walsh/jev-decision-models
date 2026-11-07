@@ -32,7 +32,7 @@ VARIANTS = {
                                  "choices": ["0", "1", "2"]},
 }
 
-tok, model = load(attn_implementation="eager")
+tok, model = load()
 for label, field in VARIANTS.items():
     lengths = [len(seq) for _, seq in build_trie(tok, {"frustration": field}).paths]
     probs = decide(tok, model, STATE, {"frustration": field}).answers["frustration"].probs

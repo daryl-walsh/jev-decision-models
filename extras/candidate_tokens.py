@@ -11,11 +11,9 @@ import pathlib
 import sys
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
-from transformers import AutoTokenizer
+from common import SCHEMA, compile_field, load_tokenizer
 
-from common import MODEL_ID, SCHEMA, compile_field
-
-tok = AutoTokenizer.from_pretrained(MODEL_ID)
+tok = load_tokenizer()
 
 for name, field in SCHEMA.items():
     c = compile_field(tok, name, field)

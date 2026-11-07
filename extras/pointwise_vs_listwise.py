@@ -20,7 +20,7 @@ STATE = ("Ticket #8812: 'I was charged twice for the same order and nobody has r
 OPTIONS = ["BILLING", "TECHNICAL", "ACCOUNT"]
 DISTRACTOR = "WAREHOUSE_ROBOTICS"
 
-tok, model = load(attn_implementation="eager")
+tok, model = load()
 
 
 def ask(options, listed):

@@ -10,26 +10,29 @@ softmax over those. The model's own output head does the scoring, so nothing is 
 nothing can be generated outside the option set.
 
 Every step is a line in this file. Run them one at a time and look at what each makes:
-cache, ids, segments, visible, mask, positions, logits.
+cache, ids, segments, visible, positions, logits.
+
+On llama.cpp there is no mask tensor to build. The state sits in sequence 0 of the KV cache; each
+question runs in a sequence of its own (its segment id) that borrows the state's cells and nothing
+else. `visible` is what that arrangement produces - printed for you, never sent to the model.
 
 Only the option's FIRST token is read, so two options that start alike - FRAUD and FRAUD_REVIEW -
 cannot be told apart. pack() refuses them rather than returning a tie.
 """
-import copy
 import pathlib
 import sys
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parent))
 import torch
 
-from common import load, pack, prefill, question_mask
+from common import answer_from_cache, load, pack, prefill, question_mask
 
 STATE = ("Ticket #8812: charged twice for the same order, no reply in four days. "
          "Cancel it and give me my money back, or I am disputing with my bank.")
 QUESTIONS = [("Is the customer asking for money back?", ["no", "yes"]),
              ("Which team owns this?", ["billing", "technical"])]
 
-tok, model = load(attn_implementation="eager")
+tok, model = load()
 
 cache, state_length = prefill(tok, model, STATE)
 
@@ -37,17 +40,14 @@ cache, state_length = prefill(tok, model, STATE)
 def answer(questions):
     ids, segments, decisions, options, candidates = pack(tok, "", questions)
 
-    mask, visible = question_mask(model, segments, state_length)
+    visible = question_mask(segments, state_length)
 
-    positions = torch.tensor([[state_length + i - segments.index(seg)
-                               for i, seg in enumerate(segments)]]).to(model.device)
+    positions = [state_length + i - segments.index(seg) for i, seg in enumerate(segments)]
 
-    logits = model(input_ids=torch.tensor([ids], device=model.device), attention_mask=mask,
-                   position_ids=positions,
-                   past_key_values=copy.deepcopy(cache)).logits[0].float().cpu()
+    logits = answer_from_cache(model, cache, ids, segments, positions, outputs=decisions)
 
-    for (instructions, choices), decision, option_ids in zip(questions, decisions, candidates):
-        probs = torch.softmax(logits[decision][torch.tensor(option_ids)], -1)
+    for (instructions, choices), row, option_ids in zip(questions, logits, candidates):
+        probs = torch.softmax(row[torch.tensor(option_ids)], -1)
         print(f"  {instructions:<40} {dict(zip(choices, [round(p, 3) for p in probs.tolist()]))}")
     print(f"    {len(ids)} question tokens through the model, {state_length} state tokens reused")
 
