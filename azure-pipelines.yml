@@ -1,0 +1,33 @@
+# Azure DevOps equivalent of .github/workflows/ci.yml. Delete whichever you don't use.
+trigger:
+  branches:
+    include: [main]
+pr:
+  branches:
+    include: ["*"]
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  MISE_YES: "1"
+  CI: "true" # skips the mise postinstall setup hook
+  # Define FNOX_AGE_KEY as a secret pipeline variable if tests need secrets.
+
+steps:
+  - checkout: self
+    fetchDepth: 0 # full history for betterleaks
+
+  - bash: |
+      curl -fsSL https://mise.run | sh
+      echo "##vso[task.prependpath]$HOME/.local/bin"
+      echo "##vso[task.prependpath]$HOME/.local/share/mise/shims"
+    displayName: Install mise
+
+  - bash: mise install
+    displayName: Install tools from mise.toml
+
+  - bash: mise run ci
+    displayName: Lint, type check, test, audit, secret scan
+    env:
+      FNOX_AGE_KEY: $(FNOX_AGE_KEY)

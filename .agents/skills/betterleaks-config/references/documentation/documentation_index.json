@@ -1,0 +1,806 @@
+{
+  "total_files": 2,
+  "categories": {
+    "overview": [
+      "config.md",
+      "scanning.md"
+    ]
+  },
+  "files": [
+    {
+      "path": "config.md",
+      "filename": "config.md",
+      "category": "overview",
+      "size_bytes": 43862,
+      "title": "Betterleaks config",
+      "structure": {
+        "title": "Betterleaks config",
+        "headers": [
+          {
+            "level": 1,
+            "text": "Betterleaks config",
+            "line": 1
+          },
+          {
+            "level": 2,
+            "text": "Inspect a config",
+            "line": 22
+          },
+          {
+            "level": 2,
+            "text": "Inspect configuration hashes",
+            "line": 43
+          },
+          {
+            "level": 2,
+            "text": "Configuration hashes for SDK caches",
+            "line": 71
+          },
+          {
+            "level": 2,
+            "text": "Top-level shape",
+            "line": 119
+          },
+          {
+            "level": 2,
+            "text": "Expr overview",
+            "line": 198
+          },
+          {
+            "level": 2,
+            "text": "Data available to Expr",
+            "line": 224
+          },
+          {
+            "level": 2,
+            "text": "Filtering",
+            "line": 311
+          },
+          {
+            "level": 3,
+            "text": "Filter functions",
+            "line": 316
+          },
+          {
+            "level": 3,
+            "text": "Native Expr helpers and migration",
+            "line": 343
+          },
+          {
+            "level": 2,
+            "text": "Validation and credential analysis",
+            "line": 448
+          },
+          {
+            "level": 3,
+            "text": "Request limits",
+            "line": 501
+          },
+          {
+            "level": 3,
+            "text": "Result format",
+            "line": 541
+          },
+          {
+            "level": 3,
+            "text": "Validation functions",
+            "line": 571
+          },
+          {
+            "level": 2,
+            "text": "Explicit credential revocation",
+            "line": 641
+          },
+          {
+            "level": 2,
+            "text": "Components",
+            "line": 710
+          },
+          {
+            "level": 3,
+            "text": "Overriding rule defaults with env vars",
+            "line": 764
+          },
+          {
+            "level": 2,
+            "text": "Validation with an LLM",
+            "line": 796
+          },
+          {
+            "level": 2,
+            "text": "Expr function naming",
+            "line": 859
+          },
+          {
+            "level": 2,
+            "text": "Adding an Expr binding",
+            "line": 869
+          },
+          {
+            "level": 2,
+            "text": "Credential boundaries",
+            "line": 880
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "sh",
+            "code": "# Print the resolved TOML config\nbetterleaks config show\nbetterleaks config show path/to/betterleaks.toml\n\n# List all rule IDs, or only those with a provider stage\nbetterleaks config show ids\nbetterleaks config show ids --validation\nbetterleaks config show ids --analysis\nbetterleaks config show ids --revocation\nbetterleaks config show ids --analysis path/to/betterleaks.toml"
+          },
+          {
+            "language": "sh",
+            "code": "# Hash the whole resolved configuration\nbetterleaks config hash --config custom.toml\n\n# Compare with a finding's rule_hash\nbetterleaks config hash --config custom.toml --rule github-pat\n\n# Use embedded defaults or configuration selected through environment variables\nbetterleaks config hash --rule github-pat\n\n# A positional config path is also supported\nbetterleaks config hash custom.toml --rule github-pat"
+          },
+          {
+            "language": "go",
+            "code": "configHash := cfg.Hash()\nruleHash, err := cfg.RuleHash(\"github-pat\")\nif err != nil {\n    return err\n}"
+          },
+          {
+            "language": "expr",
+            "code": "attributes[\"path\"]\ncomponents[\"account-id\"]?.secret ?? \"\"\nr.json?.login ?? \"\""
+          },
+          {
+            "language": "expr",
+            "code": "finding.secret\nfinding.captures[\"username\"]\ncomponents[\"account-id\"].secret\ncomponents[\"account-id\"].captures[\"region\"]"
+          },
+          {
+            "language": "expr",
+            "code": "finding.captures[\"username\"] == \"example\"\n&& finding.captures[\"host\"] == \"example.invalid\""
+          },
+          {
+            "language": "expr",
+            "code": "let providerMatchContext = finding[\"fragment_raw\"][\n    max(finding[\"match_start_idx\"] - 150, finding[\"match_line_start_idx\"]):\n    min(finding[\"match_end_idx\"] + 50, finding[\"match_line_end_idx\"])\n];\ncontainsAny(providerMatchContext, [\"provider\"])"
+          },
+          {
+            "language": "expr",
+            "code": "let genericMatchPrefix = findMatch(\n    finding[\"fragment_raw\"][\n        max(finding[\"match_start_idx\"] - 50, finding[\"match_line_start_idx\"]):\n        finding[\"match_start_idx\"]\n    ],\n    `[\\w.-]{0,50}$`\n);\nlet genericMatchContext =\n    genericMatchPrefix +\n    finding[\"fragment_raw\"][finding[\"match_start_idx\"]:finding[\"match_end_idx\"]];"
+          },
+          {
+            "language": "expr",
+            "code": "entropy(finding[\"secret\"]) < 3.0 ||\ntokenRatio(finding[\"secret\"]) >= 2.5"
+          },
+          {
+            "language": "toml",
+            "code": "filter = '''\ncrypto.sha256(finding[\"secret\"]) in [\n    \"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\",\n]\n'''"
+          },
+          {
+            "language": "toml",
+            "code": "filter = '''\n(\n    matchesAny(attributes[\"git.author_name\"], [`\\[bot\\]$`]) &&\n    matchesAny(attributes[\"path\"], [`^tests/fixtures/`]) &&\n    containsAny(finding[\"secret\"], [\"_MOCK_\", \"_TEST_\"])\n)\n||\n(\n    matchesAny(attributes[\"path\"], [`(?i)\\.(?:md|txt|csv)$`]) &&\n    (\n        containsAny(finding[\"line\"], [\"Example:\", \"Placeholder:\", \"Replace this with\"]) ||\n        finding[\"secret\"] == \"SUPER_SECRET_EXAMPLE_KEY_12345\"\n    )\n)\n||\n(\n    entropy(finding[\"secret\"]) <= 2.5 &&\n    failsTokenEfficiency(finding[\"secret\"])\n)\n'''"
+          },
+          {
+            "language": "toml",
+            "code": "[[rules]]\nid = \"generic-api-key\"\nconfidence = \"low\"\nfilter = '''\nlet level = matchesAny(finding[\"line\"], [`(?i)\\b[a-z0-9]+[_.-]+token\\b`]) ? \"medium\" : \"low\";\nlet _ = setConfidence(level);\nfalse\n'''"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks filesystem . -a \\\n  --provider-max-requests 1000 \\\n  --provider-rps 10 \\\n  --provider-rps-rule github-pat=2 \\\n  --provider-rps-rule github-fine-grained-pat=2"
+          },
+          {
+            "language": "expr",
+            "code": "{\"result\": \"valid\", \"reason\": \"Accepted\", \"metadata\": {\"account\": \"demo\"}, \"analysis\": {\"private_evidence\": \"...\"}}"
+          },
+          {
+            "language": "toml",
+            "code": "validate = '''\nlet r = http.get(\"https://api.github.com/app\", {\n    \"Accept\": \"application/vnd.github+json\",\n    \"Authorization\": \"Bearer \" + finding[\"secret\"]\n  });\nr.status == 200 && (r.json?.slug ?? \"\") != \"\" ? {\n    \"result\": \"valid\",\n    \"metadata\": {\n      \"slug\": r.json?.slug ?? \"\",\n      \"name\": r.json?.name ?? \"\",\n      \"html_url\": r.json?.html_url ?? \"\",\n      \"external_url\": r.json?.external_url ?? \"\"\n    }\n  } : r.status in [401, 403] ? {\n    \"result\": \"invalid\",\n    \"reason\": \"Unauthorized\"\n  } : validate.unknown(r)\n'''"
+          },
+          {
+            "language": "toml",
+            "code": "[[rules]]\nid = \"example-token\"\nregex = '''example_[A-Za-z0-9]{32}'''\nrevoke = '''\nlet headers = {\"Authorization\": \"Bearer \" + finding.secret};\nlet lookup = http.get(\"https://api.example.com/tokens/self\", headers);\nlookup.status != 200 ? revoke.unknown(lookup) : (\n  let id = lookup.json.id ?? \"\";\n  !(id matches \"^[A-Za-z0-9_-]+$\") ? {\n    \"result\": \"unknown\", \"reason\": \"No unambiguous token ID\"\n  } : (\n    let deleted = http.delete(\"https://api.example.com/tokens/\" + id, headers);\n    deleted.status == 204 ? {\n      \"result\": \"revoked\", \"reason\": \"Provider confirmed token removal\"\n    } : revoke.unknown(deleted)\n  )\n)\n'''"
+          },
+          {
+            "language": "toml",
+            "code": "[[rules]]\nid = \"credential\"\nregex = '''credential[=: ]+([A-Za-z0-9_-]+)'''\ncomponents = [\n  { id = \"account-id\", within = \"5L\" },\n  { id = \"session-token\", optional = true, within = \"-2L,+4C\" },\n]"
+          },
+          {
+            "language": "expr",
+            "code": "finding.secret                              // primary rule's selected value\nfinding.captures                             // primary rule named capture groups\ncomponents[\"account-id\"]?.secret            // component's selected secret\ncomponents[\"account-id\"]?.captures?.id       // component named capture group"
+          },
+          {
+            "language": "expr",
+            "code": "let account = components[\"account-id\"]?.secret ?? \"\";\nlet session = components[\"session-token\"]?.secret ?? \"\";\nlet region = components[\"account-id\"]?.captures?.region ?? \"\";"
+          },
+          {
+            "language": "expr",
+            "code": "let base_url = env.getOrDefault(\"SOME_BASE_URL\", \"https://default.example.com\");\nlet r = http.get(base_url + \"/whoami\", { ... });\n..."
+          },
+          {
+            "language": "sh",
+            "code": "export GITHUB_BASE_URL=https://github.example.com/api/v3\nbetterleaks github --validate --provider-env-vars GITHUB_BASE_URL https://github.example.com/owner"
+          },
+          {
+            "language": "toml",
+            "code": "[[rules]]\nid = \"generic-secret-llm-filtered\"\ndescription = \"Generic secret filtered by an LLM\"\nregex = '''(?i)[\\w.-]{0,50}?(?:access|auth|(?-i:[Aa]pi|API)|credential|creds|key|passw(?:or)?d|secret|token)(?:[ \\t\\w.-]{0,20})[\\s'\"]{0,3}(?:=|>|:{1,3}=|\\|\\||:|=>|\\?=|,)[\\x60'\"\\s=]{0,5}([\\w.=-]{10,150}|[a-z0-9][a-z0-9+/]{11,}={0,3})(?:\\\\?['\"\\x60]|[\\s;]|\\\\[nr]|$)'''\nkeywords = [\"access\", \"api\", \"auth\", \"key\", \"credential\", \"creds\", \"password\", \"secret\", \"token\"]\n\nfilter = '''\nentropy(finding[\"secret\"]) <= 4.0 ||\nfailsTokenEfficiency(finding[\"secret\"])\n'''\n\nvalidate = '''\nlet obf_secret = strings.obfuscate(finding[\"secret\"]);\nlet r = http.post(\n  \"https://api.openai.com/v1/chat/completions\",\n  {\n    \"Authorization\": \"Bearer \" + env.get(\"OPENAI_API_KEY\"),\n    \"Content-Type\": \"application/json\"\n  },\n  \"{\" +\n    \"\\\"model\\\":\\\"gpt-5.4-mini\\\",\" +\n    \"\\\"temperature\\\":0,\" +\n    \"\\\"max_completion_tokens\\\":256,\" +\n    \"\\\"messages\\\":[\" +\n      \"{\\\"role\\\":\\\"system\\\",\\\"content\\\":\" +\n        toJSON(\n          \"Classify whether the candidate is a real usable credential or a benign match. \" +\n          \"Respond with exactly three lines: VERDICT_SECRET or VERDICT_NOT, confidence from 0.0 to 1.0, and a short justification.\"\n        ) +\n      \"},\" +\n      \"{\\\"role\\\":\\\"user\\\",\\\"content\\\":\" +\n        toJSON(\"Candidate: \" + obf_secret) +\n      \"}\" +\n    \"]\" +\n  \"}\"\n);\nlet content = r.json?.choices?.[0]?.message?.content ?? \"\";\nr.status == 200 && r.body contains \"VERDICT_SECRET\" ? {\n  \"result\": \"needs_validation\",\n  \"metadata\": {\"justification\": content}\n} : r.status == 200 && r.body contains \"VERDICT_NOT\" ? {\n  \"result\": \"invalid\",\n  \"metadata\": {\"justification\": content}\n} : validate.unknown(r)\n'''"
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 2,
+        "word_count": 165,
+        "line_count": 901
+      },
+      "summary": "**Betterleaks config**\nSections: Inspect a config, Inspect configuration hashes, Configuration hashes for SDK caches, Top-level shape, Expr overview\nThe `betterleaks.toml` file controls detection, filtering, validation, analysis, and optional explicit credential revocation. It is TOML because rules are mostly flat data plus Expr expressions. Unkno...\n(165 words, 22 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 4,
+        "code_blocks": 22,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.295454545454545
+        }
+      }
+    },
+    {
+      "path": "scanning.md",
+      "filename": "scanning.md",
+      "category": "overview",
+      "size_bytes": 95183,
+      "title": "Advanced Scanning Guide",
+      "structure": {
+        "title": "Advanced Scanning Guide",
+        "headers": [
+          {
+            "level": 1,
+            "text": "Advanced Scanning Guide",
+            "line": 1
+          },
+          {
+            "level": 2,
+            "text": "Provider modes and v1 flag migration",
+            "line": 5
+          },
+          {
+            "level": 2,
+            "text": "Parallel jobs",
+            "line": 42
+          },
+          {
+            "level": 2,
+            "text": "Pick a target",
+            "line": 97
+          },
+          {
+            "level": 3,
+            "text": "Automatic source selection",
+            "line": 124
+          },
+          {
+            "level": 2,
+            "text": "Structured credential patterns",
+            "line": 192
+          },
+          {
+            "level": 2,
+            "text": "Finding output",
+            "line": 222
+          },
+          {
+            "level": 2,
+            "text": "Allow signatures",
+            "line": 369
+          },
+          {
+            "level": 2,
+            "text": "Ignore exact secret values",
+            "line": 395
+          },
+          {
+            "level": 2,
+            "text": "Filesystem scanning",
+            "line": 526
+          },
+          {
+            "level": 2,
+            "text": "`url`",
+            "line": 565
+          },
+          {
+            "level": 2,
+            "text": "`git`",
+            "line": 595
+          },
+          {
+            "level": 3,
+            "text": "Git options",
+            "line": 627
+          },
+          {
+            "level": 3,
+            "text": "What to fetch",
+            "line": 649
+          },
+          {
+            "level": 3,
+            "text": "What to scan",
+            "line": 687
+          },
+          {
+            "level": 3,
+            "text": "Which commits",
+            "line": 725
+          },
+          {
+            "level": 3,
+            "text": "Scanning a pull request",
+            "line": 760
+          },
+          {
+            "level": 3,
+            "text": "Finding metadata",
+            "line": 797
+          },
+          {
+            "level": 3,
+            "text": "Limits and incomplete scans",
+            "line": 821
+          },
+          {
+            "level": 3,
+            "text": "Storage outside the repository",
+            "line": 860
+          },
+          {
+            "level": 3,
+            "text": "Remote repositories",
+            "line": 882
+          },
+          {
+            "level": 3,
+            "text": "SDK",
+            "line": 905
+          },
+          {
+            "level": 3,
+            "text": "Caller-supplied patches",
+            "line": 945
+          },
+          {
+            "level": 2,
+            "text": "`github`",
+            "line": 1004
+          },
+          {
+            "level": 3,
+            "text": "Resource types",
+            "line": 1017
+          },
+          {
+            "level": 3,
+            "text": "Target selection",
+            "line": 1034
+          },
+          {
+            "level": 3,
+            "text": "Issues, PRs, comments",
+            "line": 1060
+          },
+          {
+            "level": 3,
+            "text": "Actions",
+            "line": 1075
+          },
+          {
+            "level": 3,
+            "text": "Discussions, releases, gists",
+            "line": 1096
+          },
+          {
+            "level": 3,
+            "text": "Single GitHub resource",
+            "line": 1121
+          },
+          {
+            "level": 3,
+            "text": "GitHub Enterprise",
+            "line": 1143
+          },
+          {
+            "level": 2,
+            "text": "`gitlab`",
+            "line": 1151
+          },
+          {
+            "level": 3,
+            "text": "Resource types",
+            "line": 1164
+          },
+          {
+            "level": 3,
+            "text": "Target selection",
+            "line": 1180
+          },
+          {
+            "level": 3,
+            "text": "Issues, MRs, comments",
+            "line": 1213
+          },
+          {
+            "level": 3,
+            "text": "Releases, snippets, CI",
+            "line": 1228
+          },
+          {
+            "level": 3,
+            "text": "Single GitLab resource",
+            "line": 1258
+          },
+          {
+            "level": 3,
+            "text": "Self-managed GitLab",
+            "line": 1280
+          },
+          {
+            "level": 2,
+            "text": "`huggingface`",
+            "line": 1290
+          },
+          {
+            "level": 3,
+            "text": "Resource types",
+            "line": 1300
+          },
+          {
+            "level": 3,
+            "text": "Target selection",
+            "line": 1309
+          },
+          {
+            "level": 3,
+            "text": "Storage Buckets",
+            "line": 1341
+          },
+          {
+            "level": 2,
+            "text": "`s3`",
+            "line": 1371
+          },
+          {
+            "level": 3,
+            "text": "Choosing a URL form",
+            "line": 1375
+          },
+          {
+            "level": 3,
+            "text": "URL forms",
+            "line": 1384
+          },
+          {
+            "level": 3,
+            "text": "Authentication",
+            "line": 1401
+          },
+          {
+            "level": 3,
+            "text": "Enumeration",
+            "line": 1433
+          },
+          {
+            "level": 3,
+            "text": "Object filters and limits",
+            "line": 1455
+          },
+          {
+            "level": 2,
+            "text": "`container`",
+            "line": 1472
+          },
+          {
+            "level": 3,
+            "text": "Registry images and authentication",
+            "line": 1478
+          },
+          {
+            "level": 3,
+            "text": "Local images and saved archives",
+            "line": 1551
+          },
+          {
+            "level": 3,
+            "text": "Coverage and reports",
+            "line": 1649
+          },
+          {
+            "level": 3,
+            "text": "Container provenance",
+            "line": 1699
+          },
+          {
+            "level": 3,
+            "text": "Limits and incomplete scans",
+            "line": 1733
+          },
+          {
+            "level": 3,
+            "text": "Container SDK",
+            "line": 1766
+          },
+          {
+            "level": 2,
+            "text": "`validate` and `analyze`",
+            "line": 1796
+          },
+          {
+            "level": 2,
+            "text": "`revoke`",
+            "line": 1973
+          },
+          {
+            "level": 2,
+            "text": "`stdin`",
+            "line": 2027
+          },
+          {
+            "level": 2,
+            "text": "Handy shared patterns",
+            "line": 2054
+          },
+          {
+            "level": 2,
+            "text": "Related docs",
+            "line": 2093
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "sh",
+            "code": "BETTERLEAKS_VALIDATE=true betterleaks fs .\nBETTERLEAKS_ANALYZE=true betterleaks fs .\n# Override both environment settings for this scan\nbetterleaks fs . --analyze=false --validate=false"
+          },
+          {
+            "language": "sh",
+            "code": "# use up to eight concurrent detections\nbetterleaks filesystem . -j 8\nbetterleaks github https://github.com/my-company -j 8"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks ./my-project\nbetterleaks auto ./my-project\nbetterleaks https://github.com/betterleaks/betterleaks\nbetterleaks https://gitlab.com/group/project.git\nbetterleaks https://huggingface.co/datasets/owner/dataset\nbetterleaks s3://bucket/prefix\nbetterleaks hf://buckets/owner/bucket"
+          },
+          {
+            "language": "go",
+            "code": "kind, err := sources.Auto(ctx, target)\nif err != nil {\n    return err // kind == sources.UnknownKind\n}\nswitch kind {\ncase sources.FilesystemKind:\n    // Construct sources.Files with Path: target.\ncase sources.GitKind:\n    // Construct gogit.Source with URL: target.\ncase sources.URLKind:\n    // Construct sources.URL with URL: target.\n    // Set MaxArchiveDepth if archives should be scanned.\n}"
+          },
+          {
+            "language": "json",
+            "code": "{\n  \"encodings\": [\"percent\", \"base64\"],\n  \"decode_depth\": 3\n}"
+          },
+          {
+            "language": "json",
+            "code": "{\n  \"schema_version\": \"1\",\n  \"findings\": [],\n  \"scan\": {\n    \"state\": \"complete\",\n    \"source\": {\"type\": \"filesystem\", \"targets\": [\"./src\", \"./tests\"]},\n    \"started\": \"2026-09-23T17:00:00Z\",\n    \"finished\": \"2026-09-23T17:00:01Z\",\n    \"betterleaks_version\": \"v2.0.0-rc.1\",\n    \"config_hash\": \"...\",\n    \"bytes_scanned\": 1234,\n    \"num_findings\": 0,\n    \"confidence_counts\": {\"high\": 0, \"medium\": 0, \"low\": 0, \"none\": 0, \"other\": 0},\n    \"severity_counts\": {\"high\": 0, \"medium\": 0, \"unknown\": 0, \"none\": 0},\n    \"status_counts\": {\"valid\": 0, \"invalid\": 0, \"revoked\": 0, \"needs_validation\": 0, \"unknown\": 0, \"error\": 0, \"none\": 0}\n  }\n}"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks fs . --allow-signature betterleaks:allow --allow-signature '#nosec'"
+          },
+          {
+            "language": "text",
+            "code": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+          },
+          {
+            "language": "text",
+            "code": "Ignore: sha256 of ACCOUNT_B\nTOKEN_A + ACCOUNT_B -> suppressed\nTOKEN_A + ACCOUNT_C -> retained"
+          },
+          {
+            "language": "toml",
+            "code": "filter = '''\ncrypto.sha256(finding[\"secret\"]) in [\n    \"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\",\n]\n'''"
+          },
+          {
+            "language": "sh",
+            "code": "# prompts without echo when stdin is a terminal\nbetterleaks fingerprint\n\n# hashes piped bytes exactly, including whitespace and a trailing newline\nprintf 'secret bytes' | betterleaks fingerprint"
+          },
+          {
+            "language": "sh",
+            "code": "# Prefer the environment variable in CI; flag values can appear in process arguments or logs.\nprintf '%s' \"$SECRET\" | betterleaks fingerprint --hmac-key \"$KEY\"\nbetterleaks fs . --hmac-key \"$KEY\" --redact=100 -o report.json"
+          },
+          {
+            "language": "sh",
+            "code": "# Primary secret fingerprints\njq -r '.findings[].match.fingerprint // empty' results.json\n\n# Component value fingerprints (including non-secret values)\njq -r '.findings[].component_sets[]?.components[]?.match.fingerprint // empty' results.json"
+          },
+          {
+            "language": "sh",
+            "code": "printf 'secret bytes' | sha256sum\nprintf 'secret bytes' | shasum -a 256"
+          },
+          {
+            "language": "sh",
+            "code": "# current directory\nbetterleaks filesystem .\n\n# multiple paths\nbetterleaks filesystem services/api infra/terraform\n\n# triage with context\nbetterleaks filesystem . --match-context 3L\n\n# follow file and directory symlinks (each directory is visited once)\nbetterleaks filesystem /mnt/data --follow-symlinks\n\n# skip large files\nbetterleaks filesystem . --max-target-megabytes 20\n\n# scan inside archives\nbetterleaks filesystem ./release-bundles --max-archive-depth 2\n\n# JSON report\nbetterleaks filesystem . --output findings.json\n\n# JSONL report\nbetterleaks filesystem . --output findings.jsonl"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks url https://example.com/config.txt\nbetterleaks url https://example.com/bundle.zip --max-archive-depth 2\nbetterleaks url https://example.com/export.txt --max-target-megabytes 20"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks git .                                # all history\nbetterleaks git . --revision=origin/main..HEAD   # commits not yet on origin/main\nbetterleaks git . --include=commit-messages,notes\nbetterleaks git . --since=2026-01-01 --author='Example <'\nbetterleaks git https://github.com/owner/repo"
+          },
+          {
+            "language": "sh",
+            "code": "# Add all GitHub PR heads, including PRs from forks\nbetterleaks git https://github.com/owner/repo --clone-ref='refs/pull/*/head'\n\n# Add all GitLab merge-request heads\nbetterleaks git https://gitlab.com/owner/repo --clone-ref='refs/merge-requests/*/head'\n\n# Fetch every advertised ref, including review and other host-specific refs\nbetterleaks git https://github.com/owner/repo --clone-all-refs"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks git https://github.com/owner/repo --revision=main..feature-branch"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks git https://github.com/owner/repo \\\n  --clone-ref=refs/pull/123/head \\\n  --revision=main..refs/pull/123/head\n\n# The equivalent for a GitLab merge request\nbetterleaks git https://gitlab.com/owner/repo \\\n  --clone-ref=refs/merge-requests/123/head \\\n  --revision=main..refs/merge-requests/123/head"
+          },
+          {
+            "language": "sh",
+            "code": "git fetch origin main\ngit fetch origin refs/pull/123/head:refs/heads/pr-123\nbetterleaks git . --revision=origin/main..pr-123"
+          },
+          {
+            "language": "go",
+            "code": "history := &gogit.Source{RepoPath: \".\"}\npullRequest := &gogit.Source{RepoPath: \".\", Revision: \"origin/main..HEAD\"}\nremote := &gogit.Source{URL: \"https://github.com/owner/repo\"}\nremotePR := &gogit.Source{\n    URL:       \"https://github.com/owner/repo\",\n    CloneRefs: []string{\"refs/pull/123/head\"},\n    Revision:  \"main..refs/pull/123/head\",\n}"
+          },
+          {
+            "language": "sh",
+            "code": "set -o pipefail\n\n# Staged additions, including an initial commit\ngit diff --cached --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ |\n  betterleaks stdin --git-diff --redact\n\n# Unstaged additions to tracked files\ngit diff --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ |\n  betterleaks stdin --git-diff\n\n# Any history selection your Git supports\ngit log -p --all --since='90 days ago' --diff-merges=first-parent --format=medium --no-abbrev-commit \\\n  --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ |\n  betterleaks stdin --git-diff"
+          },
+          {
+            "language": "sh",
+            "code": "#!/usr/bin/env bash\nset -euo pipefail\nwhile read -r old new ref; do\n  [[ $new =~ ^0+$ ]] && continue                   # deleted ref\n  if [[ $old =~ ^0+$ ]]; then\n    range=(\"$new\" --not --all)                      # new ref: commits on no existing ref\n  else\n    range=(\"$old..$new\")\n  fi\n  git log -p --diff-merges=first-parent --format=medium --no-abbrev-commit \\\n    --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ \"${range[@]}\"\ndone | betterleaks stdin --git-diff --redact"
+          },
+          {
+            "language": "sh",
+            "code": "# scan a repo's git history\nbetterleaks github https://github.com/betterleaks/betterleaks\n\n# scan all repos under an org\nbetterleaks github https://github.com/my-company\n\n# scan all repos under a user\nbetterleaks github https://github.com/octocat\n\n# exclude forks and repo globs\nbetterleaks github \\\n\t--include=forks \\\n\t--exclude-repo 'my-company/*-archive' \\\n\t--exclude-repo 'my-company/playground-*' \\\n\thttps://github.com/my-company\n\n# skip repo git history, scan only API resources\nbetterleaks github \\\n\t--include=issues,prs,issue-comments,pr-comments \\\n\t--exclude=repos \\\n\thttps://github.com/my-company"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks github \\\n\t--include=issues,prs,issue-comments,pr-comments \\\n\t--since 2026-01-01 \\\n\thttps://github.com/my-company/backend\n\nbetterleaks github \\\n\t--include=issues,prs,issue-comments \\\n\t--since 2026-01-01 \\\n\t--until 2026-04-01 \\\n\thttps://github.com/my-company"
+          },
+          {
+            "language": "sh",
+            "code": "# workflow logs\nbetterleaks github \\\n\t--include=actions \\\n\thttps://github.com/my-company/backend\n\n# only one workflow, recent runs only\nbetterleaks github \\\n\t--include=actions \\\n\t--actions-workflow ci.yml \\\n\t--since 2026-01-01 \\\n\thttps://github.com/my-company/backend\n\n# include workflow artifacts\nbetterleaks github \\\n\t--include=actions,action-artifacts \\\n\thttps://github.com/my-company/backend"
+          },
+          {
+            "language": "sh",
+            "code": "# discussions (comments included automatically)\nbetterleaks github \\\n\t--include=discussions \\\n\thttps://github.com/my-company/backend\n\n# releases and release assets\nbetterleaks github \\\n\t--include=releases \\\n\thttps://github.com/my-company/backend\n\n# releases, but skip downloadable assets\nbetterleaks github \\\n\t--include=releases \\\n\t--exclude=release-assets \\\n\thttps://github.com/my-company/backend\n\n# user gists\nbetterleaks github \\\n\t--include=gists \\\n\thttps://github.com/octocat"
+          },
+          {
+            "language": "sh",
+            "code": "# pull request\nbetterleaks github https://github.com/my-company/backend/pull/1234\n\n# issue\nbetterleaks github https://github.com/my-company/backend/issues/99\n\n# discussion\nbetterleaks github https://github.com/my-company/backend/discussions/45\n\n# release tag\nbetterleaks github https://github.com/my-company/backend/releases/tag/v1.2.3\n\n# actions run\nbetterleaks github https://github.com/my-company/backend/actions/runs/123456789\n\n# gist\nbetterleaks github https://gist.github.com/octocat/aaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks github https://github.example.com/platform-team"
+          },
+          {
+            "language": "sh",
+            "code": "# scan a project's git history\nbetterleaks gitlab https://gitlab.com/my-company/backend\n\n# scan all projects under a group, including subgroups by default\nbetterleaks gitlab https://gitlab.com/my-company\n\n# scan a group without recursing into subgroups\nbetterleaks gitlab \\\n\t--include-subgroups=false \\\n\thttps://gitlab.com/my-company\n\n# enumerate every group visible to the token\nbetterleaks gitlab \\\n\t--all-groups \\\n\thttps://gitlab.com/\n\n# exclude forks and project globs\nbetterleaks gitlab \\\n\t--include=forks \\\n\t--exclude-repo 'my-company/*-archive' \\\n\t--exclude-repo 'my-company/playground-*' \\\n\thttps://gitlab.com/my-company\n\n# skip repo git history, scan only API resources\nbetterleaks gitlab \\\n\t--include=issues,mrs,issue-comments,mr-comments \\\n\t--exclude=repos \\\n\thttps://gitlab.com/my-company"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks gitlab \\\n\t--include=issues,mrs,issue-comments,mr-comments \\\n\t--since 2026-01-01 \\\n\thttps://gitlab.com/my-company/backend\n\nbetterleaks gitlab \\\n\t--include=issues,mrs,issue-comments \\\n\t--since 2026-01-01 \\\n\t--until 2026-04-01 \\\n\thttps://gitlab.com/my-company"
+          },
+          {
+            "language": "sh",
+            "code": "# snippets\nbetterleaks gitlab \\\n\t--include=snippets \\\n\thttps://gitlab.com/my-company/backend\n\n# releases and release assets\nbetterleaks gitlab \\\n\t--include=releases \\\n\thttps://gitlab.com/my-company/backend\n\n# releases, but skip downloadable assets\nbetterleaks gitlab \\\n\t--include=releases \\\n\t--exclude=release-assets \\\n\thttps://gitlab.com/my-company/backend\n\n# CI job logs\nbetterleaks gitlab \\\n\t--include=ci-jobs \\\n\thttps://gitlab.com/my-company/backend\n\n# CI job logs and artifacts\nbetterleaks gitlab \\\n\t--include=ci-jobs,ci-artifacts \\\n\thttps://gitlab.com/my-company/backend"
+          },
+          {
+            "language": "sh",
+            "code": "# merge request\nbetterleaks gitlab https://gitlab.com/my-company/backend/-/merge_requests/1234\n\n# issue\nbetterleaks gitlab https://gitlab.com/my-company/backend/-/issues/99\n\n# snippet\nbetterleaks gitlab https://gitlab.com/my-company/backend/-/snippets/55\n\n# release tag\nbetterleaks gitlab https://gitlab.com/my-company/backend/-/releases/v1.2.3\n\n# pipeline\nbetterleaks gitlab https://gitlab.com/my-company/backend/-/pipelines/123456789\n\n# job\nbetterleaks gitlab https://gitlab.com/my-company/backend/-/jobs/987654321"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks gitlab \\\n\t--base-url=https://gitlab.example.com/ \\\n\thttps://gitlab.example.com/platform-team/backend"
+          },
+          {
+            "language": "sh",
+            "code": "# scan all models, datasets, and Spaces for an owner\nbetterleaks hf https://huggingface.co/my-company\n\n# scan a model repository\nbetterleaks hf https://huggingface.co/my-company/model-name\n\n# scan a dataset repository\nbetterleaks hf https://huggingface.co/datasets/my-company/dataset-name\n\n# scan a Space repository\nbetterleaks hf https://huggingface.co/spaces/my-company/space-name\n\n# include discussions and PR comments\nbetterleaks hf \\\n\t--include=discussions,prs \\\n\thttps://huggingface.co/my-company/model-name\n\n# skip repo git history, scan only community content\nbetterleaks hf \\\n\t--include=discussions,prs \\\n\t--exclude=repos \\\n\thttps://huggingface.co/my-company/model-name\n\n# exclude repos or buckets by owner/name glob\nbetterleaks hf \\\n\t--exclude-repo 'my-company/test-*' \\\n\thttps://huggingface.co/my-company"
+          },
+          {
+            "language": "sh",
+            "code": "# scan a bucket or bucket prefix\nbetterleaks hf hf://buckets/my-company/logs/prod/\n\nbetterleaks hf https://huggingface.co/buckets/my-company/logs/prod/\n\n# include buckets when scanning an owner\nbetterleaks hf \\\n\t--include=buckets \\\n\thttps://huggingface.co/my-company\n\n# skip bucket objects above a custom size\nbetterleaks hf \\\n\t--max-bucket-object-size=1073741824 \\\n\thf://buckets/my-company/logs/\n\n# scan archives inside bucket objects\nbetterleaks hf \\\n\t--max-archive-depth=2 \\\n\thf://buckets/my-company/artifacts/"
+          },
+          {
+            "language": "sh",
+            "code": "# AWS via environment\nexport AWS_ACCESS_KEY_ID=...\nexport AWS_SECRET_ACCESS_KEY=...\nbetterleaks s3 https://my-bucket.s3.us-east-1.amazonaws.com/\n\n# AWS via flags\nbetterleaks s3 \\\n\t--access-key=AKIA... \\\n\t--secret-key=... \\\n\thttps://my-bucket.s3.us-east-1.amazonaws.com/\n\n# Public bucket, no signing (requires anonymous s3:ListBucket, not just s3:GetObject)\nbetterleaks s3 --anonymous https://<public-bucket>.s3.<region>.amazonaws.com/\n\n# Cloudflare R2 (Access Key ID + Secret from the R2 dashboard)\nexport AWS_ACCESS_KEY_ID=<r2-access-key-id>\nexport AWS_SECRET_ACCESS_KEY=<r2-secret-access-key>\nbetterleaks s3 https://my-bucket.acct123.r2.cloudflarestorage.com/\n\n# MinIO / generic S3-compatible\nbetterleaks s3 \\\n\t--access-key=minioadmin \\\n\t--secret-key=minioadmin \\\n\t--region=us-east-1 \\\n\thttp://localhost:9000/my-bucket/"
+          },
+          {
+            "language": "sh",
+            "code": "# every AWS bucket (requires s3:ListAllMyBuckets on the credentials)\nbetterleaks s3 'https://s3.us-east-1.amazonaws.com/*'\n\n# AWS buckets matching a prefix\nbetterleaks s3 'https://s3.us-east-1.amazonaws.com/prod-*'\n\n# common key prefix across many buckets\nbetterleaks s3 'https://s3.us-east-1.amazonaws.com/prod-*/logs/'\n\n# every R2 bucket in an account (requires an admin-scoped R2 API token)\nbetterleaks s3 'https://acct123.r2.cloudflarestorage.com/*'"
+          },
+          {
+            "language": "sh",
+            "code": "# raise the per-object size cap (default: 250 MiB)\nbetterleaks s3 --max-object-size=1073741824 https://my-bucket.s3.us-east-1.amazonaws.com/\n\n# scan inside archives (.zip, .tar.gz, ...) in S3 objects\nbetterleaks s3 --max-archive-depth=2 https://my-bucket.s3.us-east-1.amazonaws.com/\n\n# limit detection concurrency; object downloads remain independently bounded\nbetterleaks s3 -j 4 https://my-bucket.s3.us-east-1.amazonaws.com/"
+          },
+          {
+            "language": "sh",
+            "code": "# Public image; ignore saved credentials\nbetterleaks container ubuntu:24.04 --anonymous\n\n# Private image; use credentials from docker login\ndocker login ghcr.io\nbetterleaks container ghcr.io/example/app:latest\n\n# Select a platform instead of scanning every platform\nbetterleaks container ubuntu:24.04 --platform linux/arm64\n\n# Multiple images; platform selections are also repeatable\nbetterleaks container example/api:v1 example/worker:v1 \\\n  --platform linux/amd64 --platform linux/arm64"
+          },
+          {
+            "language": "json",
+            "code": "{\n  \"credsStore\": \"desktop\",\n  \"credHelpers\": { \"ghcr.io\": \"pass\" }\n}"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks container ghcr.io/example/private:latest --credential-helpers"
+          },
+          {
+            "language": "sh",
+            "code": "# Image in the local Docker daemon, using its API socket\nbetterleaks container --daemon docker wasilibs-build:latest\n\n# Image in the local Podman image store\nbetterleaks container --daemon podman wasilibs-build:latest\n\n# Explicit endpoint, including a rootless engine or a forwarded VM socket\nbetterleaks container --daemon podman \\\n  --daemon-host \"unix://$XDG_RUNTIME_DIR/podman/podman.sock\" wasilibs-build:latest\n\n# Docker save archive\ndocker image save wasilibs-build:latest -o image.tar\nbetterleaks container --archive image.tar\n\n# Compressed Docker/OCI archives and OCI layout directories\nbetterleaks container --archive image.tar.gz --archive second-image.tar.zst\nbetterleaks container --oci-layout ./image-layout"
+          },
+          {
+            "language": "sh",
+            "code": "DOCKER_CONTEXT=desktop-linux betterleaks container --daemon docker myimage:latest\nDOCKER_HOST=tcp://engine.example:2376 DOCKER_TLS_VERIFY=1 \\\n  DOCKER_CERT_PATH=\"$HOME/engine-certs\" betterleaks container --daemon docker myimage:latest"
+          },
+          {
+            "language": "sh",
+            "code": "# Redacted JSON report\nbetterleaks container example/app:latest --redact --output image.json\n\n# Validate detected credentials and emit JSONL\nbetterleaks container example/app:latest --validate --jsonl\n\n# Show resolution, platform selection, and periodic layer progress\nbetterleaks container example/app:latest --log-level=debug"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks config show > exhaustive.toml\n# Edit the top-level prefilter in exhaustive.toml to: prefilter = 'false'\nbetterleaks container example/app:latest --config exhaustive.toml"
+          },
+          {
+            "language": "go",
+            "code": "src := &container.Source{\n    Images:          []string{\"ghcr.io/example/app:latest\"},\n    MaxArchiveDepth: 8,\n    Prefilter:       compiledPrefilter,\n}\nsummary, err := scanner.Scan(ctx, src, handleFinding)"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks config show ids\nbetterleaks config show ids --validation\nbetterleaks config show ids --analysis"
+          },
+          {
+            "language": "sh",
+            "code": "printf '%s\\n' \"$GITHUB_TOKEN\" |\n\tbetterleaks validate --rule github-pat\n\nprintf '%s\\n' \"$GITHUB_TOKEN\" |\n\tbetterleaks analyze --rule github-pat"
+          },
+          {
+            "language": "sh",
+            "code": "betterleaks validate --rule github-pat 'ghp_...'"
+          },
+          {
+            "language": "sh",
+            "code": "printf '%s\\n' \"$AWS_ACCESS_KEY_ID\" |\n\tbetterleaks validate \\\n\t--rule aws-access-token \\\n\t--component \"aws-secret-access-key=$AWS_SECRET_ACCESS_KEY\""
+          },
+          {
+            "language": "sh",
+            "code": "printf '%s\\n' \"$GITHUB_TOKEN\" |\n\tbetterleaks validate --rule github-pat --simple\n# VALID"
+          },
+          {
+            "language": "json",
+            "code": "{\n  \"schema_version\": \"1\",\n  \"rule_id\": \"github-pat\",\n  \"analysis\": {\n    \"status\": \"valid\",\n    \"identity\": {\"username\": \"octocat\"},\n    \"capabilities\": [\"read\"],\n    \"severity\": \"medium\"\n  }\n}"
+          },
+          {
+            "language": "json",
+            "code": "{\n  \"schema_version\": \"1\",\n  \"rule_id\": \"example-credential\",\n  \"analysis\": {\"status\": \"valid\"},\n  \"component_sets\": [\n    {\n      \"analysis\": {\"status\": \"valid\"},\n      \"components\": [\n        {\"rule_id\": \"account-id\"},\n        {\"rule_id\": \"region\", \"optional\": true}\n      ]\n    }\n  ]\n}"
+          },
+          {
+            "language": "sh",
+            "code": "# JSONL on stdout\nprintf '%s\\n' \"$GITHUB_TOKEN\" |\n\tbetterleaks analyze \\\n\t--rule github-pat \\\n\t--jsonl"
+          },
+          {
+            "language": "sh",
+            "code": "# Inspect the provider's explanation for an unsuccessful revocation\nprintf '%s\\n' \"$GITLAB_TOKEN\" |\n  betterleaks revoke --rule gitlab-pat-routable-versioned --provider-debug"
+          },
+          {
+            "language": "sh",
+            "code": "# List rules with revocation support\nbetterleaks config show ids --revocation\n\n# Revoke a known Buildkite user access token\nprintf '%s\\n' \"$BUILDKITE_TOKEN\" |\n  betterleaks revoke --rule buildkite-user-access-token --jsonl"
+          },
+          {
+            "language": "sh",
+            "code": "# file through a pipe\ncat .env | betterleaks stdin\n\n# generated JSON\nterraform output -json | betterleaks stdin\n\n# decompressed stream\ncurl -sL https://example.com/blob.txt.gz | gunzip | betterleaks stdin\n\n# JSON report to stdout\nsome-command | betterleaks stdin --output -"
+          },
+          {
+            "language": "sh",
+            "code": "# use a specific config\nbetterleaks filesystem . --config .betterleaks.toml\n\n# only run selected rules\nbetterleaks git . --isolate-rule github-pat --isolate-rule aws-access-key\n\n# disable selected rules\nbetterleaks git . --disable-rule generic-api-key\n\n# retain only selected validation results\nbetterleaks filesystem . -a --status valid,unknown\n\n# validate without credential analysis\nbetterleaks filesystem . --validate --status valid\n\n# detect without validation or analysis (the default)\nbetterleaks filesystem .\n\n# cap and rate-limit outbound provider requests\nbetterleaks filesystem . -a \\\n\t--provider-max-requests 1000 \\\n\t--provider-rps 10 \\\n\t--provider-rps-rule github-pat=2\n\n# redact output\nbetterleaks git . --redact\n\n# show clipped context\nbetterleaks filesystem . --match-context 5L,40C\n\n# scan archives and decoded content together\nbetterleaks filesystem ./artifacts --max-archive-depth 2 --max-decode-depth 5"
+          }
+        ],
+        "tables": 4,
+        "images": 0,
+        "links": 5,
+        "word_count": 356,
+        "line_count": 2108
+      },
+      "summary": "**Advanced Scanning Guide**\nSections: Provider modes and v1 flag migration, Parallel jobs, Pick a target, Automatic source selection, Structured credential patterns\nUse `--help` for full flag descriptions. This page is for patterns.\n(356 words, 60 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 4,
+        "cross_references": 13,
+        "code_blocks": 60,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.533333333333333
+        }
+      }
+    }
+  ]
+}

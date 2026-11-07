@@ -1,0 +1,13 @@
+{
+  "owner": "bastos",
+  "slug": "pass",
+  "displayName": "pass - stores, retrieves, generates, and synchronizes passwords securely",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1778993785396,
+    "commit": null
+  },
+  "history": [],
+  "updatedAt": "2026-05-17T04:56:25.396Z",
+  "createdAt": "2026-02-28T01:06:34.047Z"
+}

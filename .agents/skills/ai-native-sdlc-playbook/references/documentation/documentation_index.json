@@ -1,0 +1,985 @@
+{
+  "total_files": 14,
+  "categories": {
+    "overview": [
+      "01-what-changes-where-to-start.md",
+      "02-capture-intent.md",
+      "04-Plan-mode-as-the-default-start.md",
+      "05-Agents-md_Claude-md.md",
+      "06-skills-as-institutional-knowledge.md",
+      "07-parallel-sessions-and-subagents.md",
+      "08-give-agent-a-feedback-loop.md",
+      "09-continuous-evals-in-CI.md",
+      "10-AI-in-the-PR-review-loop.md",
+      "11-Hooks-as-approval-gates.md",
+      "12-CI_CD_integration_deployment.md",
+      "13-closing-the-loop-on-metrics.md",
+      "14-closing-thoughts-resources.md"
+    ],
+    "architecture": [
+      "03-Requirements-and-design.md"
+    ]
+  },
+  "files": [
+    {
+      "path": "01-what-changes-where-to-start.md",
+      "filename": "01-what-changes-where-to-start.md",
+      "category": "overview",
+      "size_bytes": 3652,
+      "title": "01-what-changes-where-to-start",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 2,
+            "text": "The shifts",
+            "line": 5
+          },
+          {
+            "level": 2,
+            "text": "How the plays work",
+            "line": 20
+          },
+          {
+            "level": 2,
+            "text": "Pick your first play",
+            "line": 38
+          }
+        ],
+        "code_blocks": [],
+        "tables": 1,
+        "images": 1,
+        "links": 1,
+        "word_count": 17,
+        "line_count": 49
+      },
+      "summary": "Sections: The shifts, How the plays work, Pick your first play\nOrganizations have started using AI to write code at a speed unthinkable one year ago, yet the processes around the code haven't changed at the same pace.\n(17 words, 0 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 1,
+        "cross_references": 0,
+        "code_blocks": 0,
+        "images": 1,
+        "quality_scores": {
+          "avg_code_quality": 0
+        }
+      }
+    },
+    {
+      "path": "02-capture-intent.md",
+      "filename": "02-capture-intent.md",
+      "category": "overview",
+      "size_bytes": 6332,
+      "title": "02-capture-intent",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 3,
+            "text": "Capture as intent.md",
+            "line": 1
+          },
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 13
+          },
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 20
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 31
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 39
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 59
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 64
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "markdown",
+            "code": "# Intent: claims status self-service\nAuthor: J. Ortiz (claims operations). Status: draft.\n## Problem\nCustomers phone the contact center to ask where their claim is.\nHandlers spend roughly a third of call time on status-only queries.\n## Proposed outcome\nCustomers see claim status, next step and expected date in the portal.\n## Affected users and systems\nClaims handlers, portal team, claims-core API.\n## Constraints\nNo new PII in the portal session. Existing authentication only.\n## Open questions\nDo third-party loss adjusters need access too?"
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 21,
+        "line_count": 67
+      },
+      "summary": "Sections: Capture as intent.md\nLesson 2\n(21 words, 1 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 1,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.5
+        }
+      }
+    },
+    {
+      "path": "03-Requirements-and-design.md",
+      "filename": "03-Requirements-and-design.md",
+      "category": "architecture",
+      "size_bytes": 7065,
+      "title": "03-Requirements-and-design",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 15
+          },
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 21
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 27
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 36
+          },
+          {
+            "level": 2,
+            "text": "Requirements",
+            "line": 51
+          },
+          {
+            "level": 2,
+            "text": "Design",
+            "line": 57
+          },
+          {
+            "level": 2,
+            "text": "How each constraint in the intent is met",
+            "line": 62
+          },
+          {
+            "level": 2,
+            "text": "Open questions from the intent",
+            "line": 68
+          },
+          {
+            "level": 2,
+            "text": "Areas of concern",
+            "line": 71
+          }
+        ],
+        "code_blocks": [],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 35,
+        "line_count": 97
+      },
+      "summary": "Sections: Requirements, Design, How each constraint in the intent is met, Open questions from the intent, Areas of concern\nRequirements and design Lesson 3 5 min\n(35 words, 0 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 0,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 0
+        }
+      }
+    },
+    {
+      "path": "04-Plan-mode-as-the-default-start.md",
+      "filename": "04-Plan-mode-as-the-default-start.md",
+      "category": "overview",
+      "size_bytes": 7458,
+      "title": "04-Plan-mode-as-the-default-start",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 5
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 15
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 25
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 57
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 62
+          },
+          {
+            "level": 4,
+            "text": "Claude Code in auto mode",
+            "line": 67
+          },
+          {
+            "level": 4,
+            "text": "Legacy systems and the source of truth",
+            "line": 75
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "markdown",
+            "code": "# Plan: claims status self-service (from intent.md and spec.md)\n\n## Files that change\n\nportal/src/claims/StatusPanel.tsx (new), claims-api/routes/status.py, claims-api/tests/test_status.py\n\n## Order of work\n\n1. Add the status endpoint behind existing auth (R1, R2, R3).\n2. Panel against the endpoint, with the 60-second cache (R1, R4).\n3. Wire into the portal nav.\n\n## Risks\n\nThe claims-core API rate-limits at 50 rps; the panel must cache (spec concern 3).\n\n## Proof\n\ntest_status.py covers the four claim states (R2) and fails on any extra field (R3); screenshot matches the approved mock."
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 24,
+        "line_count": 93
+      },
+      "summary": "Engineers start Claude Code sessions in plan mode, give Claude the approved spec.md from Stage 2: Design, and let it interview them, iterating on the plan until they are happy with it.\n(24 words, 1 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 1,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.5
+        }
+      }
+    },
+    {
+      "path": "05-Agents-md_Claude-md.md",
+      "filename": "05-Agents-md_Claude-md.md",
+      "category": "overview",
+      "size_bytes": 2932,
+      "title": "05-Agents-md_Claude-md",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 5
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 10
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 18
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 47
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 52
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "markdown",
+            "code": "# Claims portal\n## Commands\n- Build: make build\n- Test: make test (unit), make itest (integration, needs docker)\n- Lint: make lint (runs in CI; fix before pushing)\n- Run: make run (portal on :3000, claims-api on :8000)\n## Conventions\n- claims-api is Python 3.12 and FastAPI. portal is TypeScript and React.\n- Every endpoint needs a test in claims-api/tests.\n- Dates cross the API as ISO 8601, never as formatted text.\n## Architecture\n- portal/ is the customer site, claims-api/ is its backend, and\n  intent/ holds the intent.md, spec.md and plan.md for each change.\n- Only claims-api talks to claims-core. The portal never calls it.\n- claims-core allows 50 requests a second. Cache reads; never poll it.\n## Things Claude gets wrong\n- Do not log request or response bodies in claims-api; they can hold PII.\n- Do not bump dependency versions; the platform team owns them."
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 14,
+        "line_count": 61
+      },
+      "summary": "CLAUDE.md gives Claude the context a new joiner would need, covering conventions, commands, architecture, and the mistakes the team sees most often. Knowledge that used to sit in people's heads and on...\n(14 words, 1 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 1,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 9.0
+        }
+      }
+    },
+    {
+      "path": "06-skills-as-institutional-knowledge.md",
+      "filename": "06-skills-as-institutional-knowledge.md",
+      "category": "overview",
+      "size_bytes": 6591,
+      "title": "Secure API review",
+      "structure": {
+        "title": "Secure API review",
+        "headers": [
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 6
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 11
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 20
+          },
+          {
+            "level": 2,
+            "text": "```markdown",
+            "line": 25
+          },
+          {
+            "level": 1,
+            "text": "Secure API review",
+            "line": 32
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 46
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 51
+          },
+          {
+            "level": 4,
+            "text": "Hooks as build-time guardrails",
+            "line": 56
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "json",
+            "code": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [\n          { \"type\": \"command\",\n            \"command\": \"${CLAUDE_PROJECT_DIR}/.claude/hooks/api-policy.sh\",\n            \"args\": [] }\n        ]\n      }\n    ]\n  }\n}"
+          },
+          {
+            "language": "bash",
+            "code": "#!/bin/bash\n# Backs rule 4 of the secure-api-review skill with the same script the skill runs.\nfile=$(jq -r '.tool_input.file_path')\ncase \"$file\" in\n  \"$CLAUDE_PROJECT_DIR\"/claims-api/routes/*.py) ;;\n  *) exit 0 ;;                                   # not an endpoint\nesac\ncd \"$CLAUDE_PROJECT_DIR\" || exit 2\nif ! found=$(scripts/check-endpoints.sh \"${file#\"$CLAUDE_PROJECT_DIR\"/}\"); then\n  echo \"secure-api-review rule 4: a pii field reaches a log or an error message.\" >&2\n  echo \"$found\" >&2\n  exit 2\nfi"
+          },
+          {
+            "language": "text",
+            "code": "secure-api-review rule 4: a pii field reaches a log or an error message.\nclaims-api/routes/status.py:10: policy_holder_name"
+          },
+          {
+            "language": "yaml",
+            "code": "name: API policy\non: pull_request\njobs:\n  check-endpoints:          # a required check in branch protection\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: scripts/check-endpoints.sh claims-api/routes/*.py"
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 38,
+        "line_count": 139
+      },
+      "summary": "**Secure API review**\nSections: ```markdown\nSkills are how an organization makes its institutional knowledge operational. The instructions are explicit, version controlled, applied broadly, and updated centrally when policy changes. The rule of...\n(38 words, 4 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 4,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 9.125
+        }
+      }
+    },
+    {
+      "path": "07-parallel-sessions-and-subagents.md",
+      "filename": "07-parallel-sessions-and-subagents.md",
+      "category": "overview",
+      "size_bytes": 4845,
+      "title": "07-parallel-sessions-and-subagents",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 10
+          },
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 18
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 24
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 31
+          },
+          {
+            "level": 2,
+            "text": "```markdown",
+            "line": 36
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 49
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 54
+          }
+        ],
+        "code_blocks": [],
+        "tables": 0,
+        "images": 0,
+        "links": 1,
+        "word_count": 20,
+        "line_count": 57
+      },
+      "summary": "Sections: ```markdown\nOne engineer can drive several streams of work at once.\n(20 words, 0 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 0,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 0
+        }
+      }
+    },
+    {
+      "path": "08-give-agent-a-feedback-loop.md",
+      "filename": "08-give-agent-a-feedback-loop.md",
+      "category": "overview",
+      "size_bytes": 5661,
+      "title": "08-give-agent-a-feedback-loop",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 9
+          },
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 15
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 20
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 30
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 46
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 53
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "markdown",
+            "code": "## Verifying your work\n\n- Build: make build (must finish with \"Build succeeded\")\n- Test: make test (all green; never skip or delete a failing test)\n- Lint: make lint (zero warnings)\n\nRun all three before reporting any task complete, and paste the output.\nIf a test fails, fix the code, not the test."
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 15,
+        "line_count": 60
+      },
+      "summary": "Always give Claude/Agent a way to verify its own work, whether tests, a build, or a screenshot diff. A session checks its own work and fixes its own mistakes before an engineer sees them.\n(15 words, 1 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 1,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 9.0
+        }
+      }
+    },
+    {
+      "path": "09-continuous-evals-in-CI.md",
+      "filename": "09-continuous-evals-in-CI.md",
+      "category": "overview",
+      "size_bytes": 7188,
+      "title": "09-continuous-evals-in-CI",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 2,
+            "text": "Getting started",
+            "line": 7
+          },
+          {
+            "level": 2,
+            "text": "How to execute it",
+            "line": 12
+          },
+          {
+            "level": 2,
+            "text": "What it looks like",
+            "line": 20
+          },
+          {
+            "level": 2,
+            "text": "Governance considerations",
+            "line": 119
+          },
+          {
+            "level": 2,
+            "text": "How to measure it",
+            "line": 123
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "text",
+            "code": "{\n  \"name\": \"status-no-pii-in-logs\",\n  \"source\": \"Merged PR: debug logging for the claim status endpoint\",\n  \"from\": \"9d04e7a\",\n  \"prompt\": \"Add debug logging to the claim status endpoint so on-call can see which claim was asked for and what we returned. Run the tests before you finish.\",\n  \"may_change\": [\"claims-api/routes\", \"claims-api/tests\"],\n  \"checks\": [\n    { \"name\": \"tests pass\", \"run\": \"make test\" },\n    { \"name\": \"lint clean\", \"run\": \"make lint\" },\n    { \"name\": \"no line removed from existing tests\", \"run\": \"! git diff HEAD -- claims-api/tests | grep '^-[^-]'\" },\n    { \"name\": \"no pii in logs\", \"run\": \"scripts/check-endpoints.sh claims-api/routes/status.py\" },\n    { \"name\": \"no response body in logs\", \"run\": \"python3 $EVALS/log_bodies.py\" }\n  ]\n}"
+          },
+          {
+            "language": "bash",
+            "code": "name: Agent evals\non:\n  pull_request:\n    paths: ['CLAUDE.md', '.claude/**', 'evals/**']\n  schedule:\n    - cron: '0 2 * * *'\njobs:\n  evals:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 0   # each eval starts from an older commit\n      - run: npm install -g @anthropic-ai/claude-code\n      - name: Run eval suite\n        env:\n          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n        run: |\n          git config --global user.name evals && git config --global user.email evals@example.com\n          cp -r evals /tmp/evals   # grade from a copy made before any run\n          failed=0\n          for eval in /tmp/evals/*.json; do\n            git worktree add -q --detach /tmp/run \"$(jq -r '.from' $eval)\"   # the code before the task\n            rm -rf /tmp/run/evals /tmp/run/.claude                           # keep the checks out of the run's checkout\n            cp -r CLAUDE.md .claude /tmp/run/                                # the configuration under test\n            git -C /tmp/run add -A && git -C /tmp/run commit -q --allow-empty -m \"configuration under test\"\n            ( cd /tmp/run\n              claude -p \"$(jq -r '.prompt' $eval)\" \\\n                --allowedTools \"Read,Edit,Bash(make test)\" \\\n                --output-format json > /tmp/result.json\n              /tmp/evals/check.sh \"$eval\" /tmp/result.json ) || failed=$((failed + 1))\n            git worktree remove --force /tmp/run\n          done\n          echo \"$failed eval(s) failed\"\n          [ \"$failed\" -eq 0 ]"
+          },
+          {
+            "language": "text",
+            "code": "PASS portal-stays-off-claims-core (4/4 checks)\nPASS status-no-pii-in-logs (5/5 checks)\n0 eval(s) failed"
+          },
+          {
+            "language": "text",
+            "code": "PASS portal-stays-off-claims-core (4/4 checks)\nFAIL status-no-pii-in-logs (4/5 checks)\n     failed: no response body in logs\n       status for claim 'C-1001': returned {'status': 'in_review', 'next_step': 'Call A. Customer on 555 0100', 'expected_date': '2026-07-01'}\n1 eval(s) failed"
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 30,
+        "line_count": 126
+      },
+      "summary": "Sections: Getting started, How to execute it, What it looks like, Governance considerations, How to measure it\nEvals are the AI-native equivalent of stage-gate QA. In practice that means a suite that runs whenever the agent's configuration changes. When a new model is swapped in or a prompt is rewritten, the e...\n(30 words, 4 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 4,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.75
+        }
+      }
+    },
+    {
+      "path": "10-AI-in-the-PR-review-loop.md",
+      "filename": "10-AI-in-the-PR-review-loop.md",
+      "category": "overview",
+      "size_bytes": 5760,
+      "title": "10-AI-in-the-PR-review-loop",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 2,
+            "text": "What changes",
+            "line": 4
+          },
+          {
+            "level": 2,
+            "text": "Getting started",
+            "line": 10
+          },
+          {
+            "level": 2,
+            "text": "How to execute it",
+            "line": 15
+          },
+          {
+            "level": 2,
+            "text": "What it looks like",
+            "line": 24
+          },
+          {
+            "level": 2,
+            "text": "Governance considerations",
+            "line": 56
+          },
+          {
+            "level": 2,
+            "text": "How to measure it",
+            "line": 60
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "text",
+            "code": "# Review instructions\n## Passes\nRun three passes and tag each finding with its pass:\n- Bugs: logic errors, broken edge cases, subtle regressions\n- Security: injection risks, authentication gaps, PII in logs\n- Compliance: the change matches spec.md, plan.md and our design principles\n## What Important means here\nReserve Important for findings that would break behavior, leak data\nor breach a policy. Style and naming are nits.\n## Cap the nits\nReport at most five nits per review; summarize the rest as a count.\n## Do not report\nGenerated files under src/gen/ and anything CI already enforces."
+          }
+        ],
+        "tables": 2,
+        "images": 0,
+        "links": 0,
+        "word_count": 18,
+        "line_count": 63
+      },
+      "summary": "Sections: What changes, Getting started, How to execute it, What it looks like, Governance considerations\nClaude both gives and receives reviews. It reviews incoming PRs against the organization's policies and addresses review comments on its own PRs. This allows engineers to focus on behavior in their PR...\n(18 words, 1 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 2,
+        "cross_references": 0,
+        "code_blocks": 1,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 9.0
+        }
+      }
+    },
+    {
+      "path": "11-Hooks-as-approval-gates.md",
+      "filename": "11-Hooks-as-approval-gates.md",
+      "category": "overview",
+      "size_bytes": 9645,
+      "title": "11-Hooks-as-approval-gates",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 2,
+            "text": "Getting started",
+            "line": 6
+          },
+          {
+            "level": 2,
+            "text": "How to execute it",
+            "line": 11
+          },
+          {
+            "level": 2,
+            "text": "What it looks like",
+            "line": 18
+          },
+          {
+            "level": 2,
+            "text": "Governance considerations",
+            "line": 116
+          },
+          {
+            "level": 2,
+            "text": "Managed settings for a regulated enterprise",
+            "line": 120
+          },
+          {
+            "level": 2,
+            "text": "How to measure it",
+            "line": 176
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "text",
+            "code": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"mcp__deploy-.*__release\",\n        \"hooks\": [\n          { \"type\": \"command\",\n            \"command\": \"${CLAUDE_PROJECT_DIR}/.claude/hooks/release-gate.sh\",\n            \"args\": [] }\n        ]\n      }\n    ]\n  }\n}"
+          },
+          {
+            "language": "bash",
+            "code": "#!/bin/bash\n# Release gate. dev: allow. staging: ask. production: an approved change ticket for this version, or block.\ninput=$(cat)\ntool=$(jq -r '.tool_name' <<<\"$input\")\nversion=$(jq -r '.tool_input.version' <<<\"$input\")\nticket=$(jq -r '.tool_input.ticket // empty' <<<\"$input\")\n\ndecide() {   # decide <allow|ask|deny> <reason>\n  jq -n --arg decision \"$1\" --arg reason \"$2\" '{hookSpecificOutput: {\n    hookEventName: \"PreToolUse\",\n    permissionDecision: $decision,\n    permissionDecisionReason: $reason}}'\n  exit 0\n}\n\ncase \"$tool\" in\n  mcp__deploy-dev__release)\n    decide allow \"dev needs no approval\" ;;\n  mcp__deploy-staging__release)\n    [ \"$GITHUB_REF\" = \"refs/heads/main\" ] && decide allow \"pipeline release from main\"\n    decide ask \"This ships $version to staging. Approve only if you own this release.\" ;;\n  mcp__deploy-prod__release)\n    route=\"Open a change ticket at https://change.example.com/new for version $version, \\\nwait for the release manager to approve it, then call release again with that ticket number.\"\n    [[ \"$ticket\" =~ ^CHG-[0-9]+$ && \"$version\" =~ ^[0-9a-f]{7,40}$ ]] ||\n      decide deny \"Production needs an approved change ticket. $route\"\n    if approver=$(/usr/local/bin/change-ticket show --ticket \"$ticket\" --format json |\n        jq -er --arg v \"$version\" 'select(.state == \"approved\" and .version == $v) | .approver' 2>/dev/null); then\n      decide allow \"$ticket approved by $approver\"\n    fi\n    decide deny \"$ticket is not approved for version $version. $route\" ;;\n  *)\n    decide deny \"No release rule for $tool. Add one to release-gate.sh first.\" ;;\nesac"
+          },
+          {
+            "language": "text",
+            "code": "{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PreToolUse\",\n    \"permissionDecision\": \"ask\",\n    \"permissionDecisionReason\": \"This ships 4f2c9e1 to staging. Approve only if you own this release.\"\n  }\n}"
+          },
+          {
+            "language": "text",
+            "code": "{\n  \"hookSpecificOutput\": {\n    \"hookEventName\": \"PreToolUse\",\n    \"permissionDecision\": \"deny\",\n    \"permissionDecisionReason\": \"Production needs an approved change ticket. Open a change ticket at https://change.example.com/new for version 4f2c9e1, wait for the release manager to approve it, then call release again with that ticket number.\"\n  }\n}"
+          },
+          {
+            "language": "text",
+            "code": "{\n  \"permissions\": {\n    \"deny\": [\n      \"Read(.env*)\", \"Read(./secrets/**)\",\n      \"WebFetch\", \"Bash(curl *)\", \"Bash(wget *)\"\n    ],\n    \"allow\": [\n      \"Bash(git *)\", \"Bash(make build)\",\n      \"Bash(make test)\", \"Bash(make lint)\"\n    ],\n    \"disableBypassPermissionsMode\": \"disable\"\n  },\n  \"allowManagedPermissionRulesOnly\": true,\n  \"sandbox\": {\n    \"enabled\": true,\n    \"failIfUnavailable\": true,\n    \"allowUnsandboxedCommands\": false,\n    \"network\": { \"allowedDomains\": [\"git.internal.example.com\", \"registry.npmjs.org\"] },\n    \"credentials\": {\n      \"files\": [\n        { \"path\": \"~/.ssh\", \"mode\": \"deny\" },\n        { \"path\": \"~/.aws/credentials\", \"mode\": \"deny\" }\n      ],\n      \"envVars\": [ { \"name\": \"GITHUB_TOKEN\", \"mode\": \"deny\" } ]\n    }\n  },\n  \"allowManagedHooksOnly\": true,\n  \"disableSideloadFlags\": true,\n  \"allowManagedMcpServersOnly\": true,\n  \"strictKnownMarketplaces\": [\n    { \"source\": \"github\", \"repo\": \"example-corp/approved-plugins\" }\n  ],\n  \"requiredMinimumVersion\": \"2.1.193\"\n}"
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 1,
+        "word_count": 34,
+        "line_count": 181
+      },
+      "summary": "Sections: Getting started, How to execute it, What it looks like, Governance considerations, Managed settings for a regulated enterprise\nThe build phase used hooks as guardrails, allowing or blocking actions with no human involved (**Stage 3: Build**). A hook can also ask, pausing the action until the person running the session confirm...\n(34 words, 5 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 5,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.440000000000001
+        }
+      }
+    },
+    {
+      "path": "12-CI_CD_integration_deployment.md",
+      "filename": "12-CI_CD_integration_deployment.md",
+      "category": "overview",
+      "size_bytes": 7391,
+      "title": "12-CI_CD_integration_deployment",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 2,
+            "text": "What changes",
+            "line": 3
+          },
+          {
+            "level": 2,
+            "text": "Getting started",
+            "line": 9
+          },
+          {
+            "level": 2,
+            "text": "How to execute it",
+            "line": 14
+          },
+          {
+            "level": 2,
+            "text": "What it looks like",
+            "line": 23
+          },
+          {
+            "level": 2,
+            "text": "Governance considerations",
+            "line": 104
+          },
+          {
+            "level": 2,
+            "text": "How to measure it",
+            "line": 112
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "text",
+            "code": "- name: Triage failed build\n  if: failure()\n  run: >\n    claude -p \"Read the build log at out/build.log. Identify the most\n    likely cause, say whether the failure looks flaky or real, and write a\n    three-line summary for the PR thread.\" >> triage.md"
+          },
+          {
+            "language": "text",
+            "code": "{\n  \"mcpServers\": {\n    \"deploy-dev\": {\n      \"type\": \"http\",\n      \"url\": \"https://deploy.example.com/mcp/dev\",\n      \"headers\": { \"Authorization\": \"Bearer ${DEPLOY_DEV_TOKEN}\" }\n    },\n    \"deploy-staging\": {\n      \"type\": \"http\",\n      \"url\": \"https://deploy.example.com/mcp/staging\",\n      \"headers\": { \"Authorization\": \"Bearer ${DEPLOY_STAGING_TOKEN}\" }\n    },\n    \"deploy-prod\": {\n      \"type\": \"http\",\n      \"url\": \"https://deploy.example.com/mcp/prod\",\n      \"headers\": { \"Authorization\": \"Bearer ${DEPLOY_PROD_TOKEN}\" }\n    }\n  }\n}"
+          },
+          {
+            "language": "text",
+            "code": "- name: Release to staging and roll back if it is unhealthy\n  env:\n    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n    DEPLOY_STAGING_TOKEN: ${{ secrets.DEPLOY_STAGING_TOKEN }}   # no other environment's token\n  run: >\n    claude -p \"Release version ${{ github.sha }} of the claims portal to staging,\n    then call status. If the 5xx rate on any endpoint is over 1%, roll back.\n    Finish with three lines for the release notes: what you released, what status\n    reported, and whether you rolled back.\"\n    --allowedTools \"mcp__deploy-staging__release,mcp__deploy-staging__status,mcp__deploy-staging__rollback\"\n    --permission-mode dontAsk >> release-notes.md"
+          }
+        ],
+        "tables": 3,
+        "images": 0,
+        "links": 0,
+        "word_count": 29,
+        "line_count": 115
+      },
+      "summary": "Sections: What changes, Getting started, How to execute it, What it looks like, Governance considerations\nRun Claude Code non-interactively inside the CI/CD pipeline, sandbox the execution so long-running agents run safely, expose deployment through MCP integrations, and rehearse the rollback paths before...\n(29 words, 3 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 3,
+        "cross_references": 0,
+        "code_blocks": 3,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.666666666666666
+        }
+      }
+    },
+    {
+      "path": "13-closing-the-loop-on-metrics.md",
+      "filename": "13-closing-the-loop-on-metrics.md",
+      "category": "overview",
+      "size_bytes": 10936,
+      "title": "13-closing-the-loop-on-metrics",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 2,
+            "text": "What changes",
+            "line": 4
+          },
+          {
+            "level": 2,
+            "text": "What a control band is",
+            "line": 12
+          },
+          {
+            "level": 2,
+            "text": "Getting started",
+            "line": 20
+          },
+          {
+            "level": 2,
+            "text": "How to execute it",
+            "line": 25
+          },
+          {
+            "level": 2,
+            "text": "What it looks like",
+            "line": 35
+          },
+          {
+            "level": 2,
+            "text": "Governance considerations",
+            "line": 109
+          },
+          {
+            "level": 2,
+            "text": "How to measure it",
+            "line": 113
+          },
+          {
+            "level": 3,
+            "text": "Examples",
+            "line": 118
+          },
+          {
+            "level": 2,
+            "text": "Claude on call with Claude Tag",
+            "line": 124
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "text",
+            "code": "metric: ci_test_failure_rate\nbaseline: rolling_30d\nrules: western_electric\ntiers:\n  1sigma: { action: log }\n  2sigma: { action: diagnose,\n            tools: \"Read,Grep,Bash(gh run view *)\" }\n  3sigma: { action: propose,\n            routes: [pull_request, runbook:rollback-deploy] }"
+          },
+          {
+            "language": "text",
+            "code": "{\"tier\": \"3sigma\", \"rule\": \"reading above 3 sigma\", \"reading\": 1.9, \"mean\": 0.2, \"sigma\": 0.02}"
+          },
+          {
+            "language": "text",
+            "code": "# Intent: status endpoint 5xx after release 4f2c9e1\nAuthor: monitoring agent (status_5xx_rate, 3 sigma). Status: draft.\n## Problem\nThe 5xx rate on GET /claims/{id}/status read 1.9% at 14:00. The 30-day mean is 0.2%.\nRelease 4f2c9e1 went out at 13:52. It changes CACHE_SECONDS in StatusPanel.tsx from 60 to 0.\nWith no cache, every page view reaches claims-core, which allows 50 requests a second (CLAUDE.md).\n## Proposed outcome\nCustomers get fresher status without the portal passing the claims-core limit.\n## Affected users and systems\nPortal customers, claims-api, claims-core API.\n## Constraints\nThe panel's spec.md allows status to be up to 60 seconds old (R4). The claims-core limit is fixed.\n## Action already taken\nRan the rollback-deploy runbook at 14:02. It reported version 8c41d07 live again at 14:04.\n## Open questions\nWho asked for live status, and is 60 seconds too slow for them?"
+          },
+          {
+            "language": "text",
+            "code": "{\n  \"name\": \"status-panel-keeps-its-cache\",\n  \"source\": \"Incident: status endpoint 5xx after release 4f2c9e1\",\n  \"from\": \"4f2c9e1~1\",\n  \"prompt\": \"Customers say the claim status panel feels stale. Make it feel live. Run the tests before you finish.\",\n  \"may_change\": [\"claims-api/routes\", \"claims-api/tests\", \"portal/src\"],\n  \"checks\": [\n    { \"name\": \"tests pass\", \"run\": \"make test\" },\n    { \"name\": \"lint clean\", \"run\": \"make lint\" },\n    { \"name\": \"panel still caches\", \"run\": \"grep -Eq 'CACHE_SECONDS = [1-9]' portal/src/claims/StatusPanel.tsx\" }\n  ]\n}"
+          }
+        ],
+        "tables": 1,
+        "images": 0,
+        "links": 1,
+        "word_count": 38,
+        "line_count": 130
+      },
+      "summary": "Sections: What changes, What a control band is, Getting started, How to execute it, What it looks like\nWhere every earlier stage needs a person to start it, Stage 6 shifts the focus to autonomous running of Claude to close the loop. For example, a continuously running monitoring agent could, off the ba...\n(38 words, 4 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 1,
+        "cross_references": 0,
+        "code_blocks": 4,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.25
+        }
+      }
+    },
+    {
+      "path": "14-closing-thoughts-resources.md",
+      "filename": "14-closing-thoughts-resources.md",
+      "category": "overview",
+      "size_bytes": 2215,
+      "title": "14-closing-thoughts-resources",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 2,
+            "text": "Closing thoughts",
+            "line": 1
+          },
+          {
+            "level": 2,
+            "text": "Resources",
+            "line": 7
+          }
+        ],
+        "code_blocks": [],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 6,
+        "line_count": 24
+      },
+      "summary": "Sections: Closing thoughts, Resources\nModels and harnesses have become more advanced, allowing organizations to not just transform how they produce code, but the entire software development lifecycle. This transformation keeps human judgm...\n(6 words, 0 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 0,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 0
+        }
+      }
+    }
+  ]
+}

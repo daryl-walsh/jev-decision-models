@@ -1,0 +1,900 @@
+# Betterleaks config
+
+The `betterleaks.toml` file controls detection, filtering, validation, analysis,
+and optional explicit credential revocation.
+It is TOML because rules are mostly flat data plus Expr expressions.
+Unknown keys are errors at every level, including inherited configurations.
+Errors identify the field and its line and column; a misspelled key is never
+silently ignored.
+
+Configuration selection follows this order:
+
+1. `--config` / `-c`.
+2. `BETTERLEAKS_CONFIG`, containing a file path.
+3. `BETTERLEAKS_CONFIG_TOML`, containing inline TOML.
+4. The embedded default configuration.
+
+Files named `.betterleaks.toml` in scan targets or the current directory are not
+loaded automatically. Use `--config .betterleaks.toml` to select one. A scan
+invocation resolves configuration once and uses it for every target. Explicit
+config paths passed to `config show`, `config check`, or `config hash` override these defaults.
+
+## Inspect a config
+
+```sh
+# Print the resolved TOML config
+betterleaks config show
+betterleaks config show path/to/betterleaks.toml
+
+# List all rule IDs, or only those with a provider stage
+betterleaks config show ids
+betterleaks config show ids --validation
+betterleaks config show ids --analysis
+betterleaks config show ids --revocation
+betterleaks config show ids --analysis path/to/betterleaks.toml
+```
+
+`config show ids` prints sorted IDs, one per line, without making provider
+requests. It uses the same config resolution as `config show`, including
+`--config` and the config environment variables. A positional config path takes
+precedence over `--config`. Use the listed IDs with `validate --rule` or
+`analyze --rule`, or `revoke --rule`.
+
+## Inspect configuration hashes
+
+```sh
+# Hash the whole resolved configuration
+betterleaks config hash --config custom.toml
+
+# Compare with a finding's rule_hash
+betterleaks config hash --config custom.toml --rule github-pat
+
+# Use embedded defaults or configuration selected through environment variables
+betterleaks config hash --rule github-pat
+
+# A positional config path is also supported
+betterleaks config hash custom.toml --rule github-pat
+```
+
+The command prints one bare SHA-256 hash and a newline. Invalid configurations
+and unknown rule IDs fail with a nonzero exit status. It makes no provider
+requests and does not compile filter or provider expressions; use `config check`
+to check expressions. `--rule` selects the hash to print, preserving the rule's
+required and optional component definitions.
+
+The whole-config hash describes the configuration as loaded. A scan using
+`--isolate-rule` or `--disable-rule` hashes its reduced configuration instead.
+A matching rule hash means its rule and component definitions are unchanged, not that a
+rescan or provider validation will produce the same result. The included and
+excluded fields are described below.
+
+## Configuration hashes for SDK caches
+
+After loading and customizing a configuration, use `cfg.Hash()` to
+identify its resolved configuration. Use `cfg.RuleHash(ruleID)` to
+identify one rule together with its required and optional component definitions;
+this method returns an error for an invalid configuration or unknown rule ID.
+`cfg.RuleHashes()` returns all rule hashes in a caller-owned map and
+validates the configuration once. Scanner computes this map during construction
+and includes the corresponding `rule_hash` in each finding and component.
+
+```go
+configHash := cfg.Hash()
+ruleHash, err := cfg.RuleHash("github-pat")
+if err != nil {
+    return err
+}
+```
+
+Both hashes include matching fields, filters, component references and proximity,
+specificity, confidence, `skipReport`, rule descriptions, tags, and provider
+`validate`, `analyze`, and `revoke` expressions, including those on components.
+Changing a component definition also changes its parent's rule hash. Provider
+expressions participate even in detection-only scans; runtime flags do not change
+what the hash identifies.
+Only the overall hash includes the global `filter` and `prefilter` and the order
+of rules. Config title, description, file path, and minimum version are excluded.
+
+Hashes describe current configuration data, not an existing scanner's snapshot.
+Compute them from the same state used to construct your scanner and source
+filters; they are not cached inside Config. Do not mutate Config concurrently
+with hashing. `Hash` does not validate the configuration; a nil Config
+returns an empty string. Neither method compiles provider expressions or forces
+scanner regex compilation.
+
+Both hashes are 64-character lowercase SHA-256 hex strings with no prefix.
+Compare them as opaque identities. TOML comments and formatting outside string values do not
+affect the hashes. Expression and regex text is hashed exactly; equivalent
+expressions with different spelling can produce different hashes. Slice order
+is preserved; nil and empty slices are equivalent.
+
+A rule hash is useful for identifying changed rule definitions, but is not enough
+to reuse final findings: global filters and competing rules can change which
+findings survive. Use the overall hash as one part of a scan-result cache key,
+alongside input content and attributes, source and scanner settings, Betterleaks
+and regex backend versions, and redaction/output policy. Provider results need
+their own freshness policy because credentials can change state independently
+of configuration.
+
+## Top-level shape
+
+Every config can use these fields:
+
+- `title`, `description`: optional descriptive text.
+
+- `prefilter`: global Expr expression that skips entire files, commits, or other source fragments before regex matching.
+- `filter`: global Expr expression that discards specific findings after regex matching.
+- `minVersion`: minimum Betterleaks binary version required. Loading fails when
+  a versioned build is older, using semantic version ordering (including
+  prereleases). Builds reporting `dev` skip the comparison; malformed minimum
+  versions are still rejected. Each inherited configuration is checked too.
+- `[extend]`: inherit rules/settings from another config or from built-in defaults.
+- `[[rules]]`: secret detection rules.
+
+The `[extend]` table accepts:
+
+- `path`: a local TOML file, resolved relative to the working directory.
+- `useDefault`: inherit the built-in configuration (`false` by default).
+- `disabledRules`: IDs to remove from the inherited rule set (empty by default).
+
+`path` and `useDefault = true` are mutually exclusive. Remote `extend.url`
+loading is unsupported and rejected. Extension chains may contain at most two
+inheritance steps, including `useDefault`: a child can extend a base which
+extends another base. A deeper chain or cycle returns an error instead of
+silently omitting rules.
+
+When a config extends another config, their global `prefilter` and `filter`
+expressions are additive. Betterleaks evaluates the extended expression first
+and skips the input when either expression returns `true`. The expressions stay
+independent; Betterleaks does not merge or rewrite their Expr programs.
+Rule-specific filters retain override semantics when a child config redefines
+the same rule.
+
+Rule IDs must be unique within each TOML configuration. Duplicate IDs are errors.
+A child configuration can still override an inherited rule by ID using `[extend]`.
+
+A child rule replaces the entire base rule with the same ID. There is no
+intra-rule merging: omitted fields use their normal defaults, and lists such as
+`keywords`, `tags`, and `components` are not combined. The child must supply its
+own `regex` or `path`; an ID and a changed description alone are not a valid rule.
+Base rules with other IDs are inherited unchanged unless disabled.
+
+Defaults and validation apply after rule replacement. An overridden or disabled
+base regex is not validated separately. Global `prefilter` and `filter`
+expressions retain the additive behavior described above. Duplicate rule IDs
+and the removed `[[rules.required]]` syntax are rejected in every loaded file,
+including declarations subsequently overridden or disabled.
+
+Each `[[rules]]` entry can use:
+
+- `id`: unique rule identifier.
+- `description`: human-readable description.
+- `keywords`: strings used for fast pre-regex filtering.
+- `regex`: regular expression used to detect the secret.
+- `path`: regular expression restricting matching to paths; can be used without
+  `regex` for a path-only rule.
+- `valueGroup`: capture group used for `match.value`, which may be a secret or
+  a non-secret component. Positive values are 1-based capture group indexes.
+  Zero (the default) selects the first non-empty capture group, falling back to
+  `match.full` if none exists. An explicitly selected group that does not
+  participate produces an empty value.
+- `specificity`: precedence among overlapping source matches when the higher
+  rule's value contains the lower rule's value; higher numbers win (default `0`).
+  Locations cover full matches, and decoded matches can cover an entire encoded
+  segment. Equal values within those ranges may be combined.
+- `tags`: optional metadata labels.
+- `skipReport`: suppress standalone reporting of this rule, commonly used for
+  credential components (`false` by default).
+- `filter`: rule-specific Expr expression to discard false positives.
+- `confidence`: optional `low`, `medium`, or `high` likelihood classification.
+- `validate`: Expr expression to actively verify whether a secret is live.
+- `analyze`: Expr expression to enrich a valid credential with identity and capabilities.
+- `revoke`: optional Expr expression executed only by the `revoke` command to invalidate a credential. Scans never execute it.
+- `components`: required or optional component rules used to build multipart findings.
+
+`keywords` are strongly recommended. Betterleaks checks them with an
+Aho-Corasick trie before running the heavier regex.
+
+## Expr overview
+
+Betterleaks uses [Expr](https://expr-lang.org/) for `prefilter`, `filter`,
+`validate`, `analyze`, and `revoke` expressions.
+
+- `prefilter` runs before regex matching and only has `attributes`.
+- `filter` runs after regex matching, before component assembly, and has
+  `attributes` and `finding`, including `finding.captures`. Returning `true`
+  discards that match. A component rule's filter sees its own match as `finding`.
+- `validate` runs after filtering and component assembly when validation is
+  enabled. It has credential-only `finding` fields and one combination of `components`.
+- `analyze` runs for each valid combination when analysis is enabled. It has
+  the same inputs plus that combination's `validation` result.
+- `revoke` runs only for an explicitly supplied credential through the `revoke`
+  command. It performs its own prerequisite lookups and does not run validation
+  or analysis automatically.
+
+Use brackets to access map values. For nested data that may be absent, use `?.`
+and provide a fallback with `??`:
+
+```expr
+attributes["path"]
+components["account-id"]?.secret ?? ""
+r.json?.login ?? ""
+```
+
+## Data available to Expr
+
+| Name | Scope | Description |
+| :--- | :--- | :--- |
+| `attributes` | prefilter, filter | Source metadata. Common keys include `path`, `git.sha`, `git.author_name`, `git.author_email`, `git.date`, `git.message`, `git.remote_url`, `git.platform`, `fs.symlink`, and the read-only `fs.first_fragment` (`"true"` for a file's first chunk and `"false"` thereafter; omitted from reports). |
+| `finding` | filter, validate, analyze, revoke | Primary match data. `finding.secret` is its selected value; `finding.captures` contains its named regex groups. Provider programs can read only `secret`, `captures`, and `rule_id`. Filters also receive `match`, `line`, `description`, `confidence`, context and fragment offsets. |
+| `components` | validate, analyze, revoke | One combination of component matches, keyed by referenced rule ID. Each has `secret` and `captures` fields. Absent optional components have no entry. |
+| `validation` | analyze | This combination's validation `status`, `reason`, public `metadata`, and private `analysis` handoff data. |
+
+Use these canonical paths in rule expressions:
+
+```expr
+finding.secret
+finding.captures["username"]
+components["account-id"].secret
+components["account-id"].captures["region"]
+```
+
+`finding.secret` is the rule's primary value, not necessarily a complete
+credential or its only sensitive field. Captures belong to that same match;
+components come from other rules' matches. A capture can be required for
+authentication without being a component. Named groups include the selected
+value group if it has a name; unmatched or empty groups are omitted during
+scanning. Use `?.` and `??` for values that may be absent.
+
+For example, a URI rule can select the password from
+`postgres://alice:password@example.com/database` while capturing the username,
+host, and database. Its filter can exclude a fixture using those captures:
+
+```expr
+finding.captures["username"] == "example"
+&& finding.captures["host"] == "example.invalid"
+```
+
+Validation and analysis read those same paths. A component rule's named
+captures stay under `components[id].captures`, even if they have the same names
+as the primary rule's captures.
+
+Top-level `secret` and `captures` bindings are not supported. Expressions using
+them fail compilation. Use `finding.secret`, `finding.captures`, and
+`components[id].secret` / `.captures` instead. Dot and bracket access are
+equivalent: `finding.secret` and `finding["secret"]` are both supported.
+
+The full attributes source is maintained in
+[`sources/attribute.go`](https://github.com/betterleaks/betterleaks/blob/main/sources/attribute.go).
+
+`finding.context` is the explicitly captured `Finding.Match.Context`, or an empty
+string when none was requested. Use `--match-context 5L` or
+`scan.WithMatchContext("5L")` to retain context for local filters and reporting.
+Analyzer preserves this field but provider expressions cannot read it.
+This text is included in JSON reports as `match.context`; there is no separate
+hidden context copy and no automatic fallback to the matching line.
+
+`Finding.Match.Line` retains the original source line(s) covering the match for
+pretty output and is omitted from JSON. Local filters still use `finding.line`
+and `finding.context`; these expression names are unchanged. For decoded matches,
+`finding.line` uses the decoded text while `Match.Line` retains the original source.
+
+Filter expressions also receive `finding["fragment_raw"]` and the byte offsets
+`match_start_idx`, `match_end_idx`, `match_line_start_idx`, and
+`match_line_end_idx`. These can be combined with Expr string slicing:
+
+```expr
+let providerMatchContext = finding["fragment_raw"][
+    max(finding["match_start_idx"] - 150, finding["match_line_start_idx"]):
+    min(finding["match_end_idx"] + 50, finding["match_line_end_idx"])
+];
+containsAny(providerMatchContext, ["provider"])
+```
+
+Regex extraction can further restrict a context window. This example recreates
+a `[\w.-]{0,50}` regex preamble by retaining only the contiguous word, dot, and
+hyphen suffix immediately before the match:
+
+```expr
+let genericMatchPrefix = findMatch(
+    finding["fragment_raw"][
+        max(finding["match_start_idx"] - 50, finding["match_line_start_idx"]):
+        finding["match_start_idx"]
+    ],
+    `[\w.-]{0,50}$`
+);
+let genericMatchContext =
+    genericMatchPrefix +
+    finding["fragment_raw"][finding["match_start_idx"]:finding["match_end_idx"]];
+```
+
+## Filtering
+
+Filters are the configuration mechanism for suppressing false positives. If a
+filter expression evaluates to `true`, the item is skipped.
+
+### Filter functions
+
+| Function | Description |
+| :--- | :--- |
+| `matchesAny(string-or-list, patterns)` | Returns `true` if the string, or any string in the list, matches any regex pattern. Invalid patterns fail expression evaluation. |
+| `findMatch(string, pattern)` | Returns the first substring matching the regex pattern, or an empty string if there is no match. Invalid patterns fail expression evaluation. |
+| `containsAny(string-or-list, terms)` | Returns `true` if the string, or any string in the list, contains a term. Uses an efficient Aho-Corasick substring match. |
+| `startsWithAny(string-or-list, prefixes)` | Returns `true` if the string, or any string in the list, starts with a prefix. |
+| `intersects(string-or-list, candidates)` | Returns `true` if at least one input string exactly equals a candidate. Matching is case-sensitive. |
+| `crypto.sha256(string)` | Returns the SHA-256 fingerprint of the exact string bytes as 64 lowercase hexadecimal characters. Available in finding filters, validation, and analysis. |
+| `entropy(string)` | Returns Shannon entropy as a float. Useful for filtering non-random placeholders. |
+| `tokenRatio(string)` | Returns the string's byte length divided by its token count. Higher values are more tokenizer-compressible and therefore more likely to be readable text. |
+| `failsTokenEfficiency(string)` | Returns `true` when the generic-secret heuristic identifies readable text using token ratio, wordlist matches, and a length-sensitive threshold. |
+| `setConfidence(level)` | Sets the current finding's `confidence` attribute. Use as `let _ = setConfidence(level);`. |
+
+Prefilters expose only `attributes`, `matchesAny`, `containsAny`, and
+`startsWithAny`, plus native Expr operators and built-ins. Other helpers in this
+table belong to finding filters or provider expressions; using them in a
+prefilter fails compilation. Move content/tokenizer checks to finding filters.
+`setConfidence` is available only in finding filters. There is no `filter` namespace: native Expr
+collection filtering works directly, for example `filter([1, 2, 3], { # > 1 })`.
+The former `filter.*` helper names fail compilation.
+
+Other Betterleaks helpers use their documented namespace. Unknown members of
+helper namespaces fail compilation; input maps such as `attributes`,
+`finding.captures`, and provider response data remain dynamic.
+
+### Native Expr helpers and migration
+
+Use native Expr functions for general collection and string operations:
+
+| Removed form | Use |
+| :--- | :--- |
+| `filter.<helper>(...)` | `<helper>(...)`, e.g. `filter.entropy(s)` → `entropy(s)` |
+| `fingerprint.sha256(s)` | `crypto.sha256(s)` |
+| `env_get(name)` | `env.get(name)` |
+| `unknown(response)` | `validate.unknown(response)` |
+| `obfuscate(s)` | `strings.obfuscate(s)` |
+| `crypto.hmac_sha256(key, message)` | `crypto.hmacSha256(key, message)` |
+| `strings.url_query_escape(s)` | `strings.urlQueryEscape(s)` |
+| `time.now_unix()` | `time.nowUnix()` |
+| `sha256(s)` | `crypto.sha256(s)` |
+| `size(collection)` | `len(collection)` |
+| `substring(s, start)` | `s[max(0, start):]` to preserve the old negative-index behavior |
+| `get(object, key, fallback)` | `get(object, key) ?? fallback` |
+| `json.string(s)` | `toJSON(s)` |
+
+The removed forms fail compilation. `replace` and `lastIndexOf` now use Expr's
+native implementations; their existing calls remain valid. Native `replace`
+also accepts a fourth argument limiting the replacement count.
+
+`len(string)` counts Unicode code points; use `len(bytes(string))` in provider
+expressions when a byte count is required. Unlike the removed `size`, `len`
+rejects unsupported values instead of returning zero. A `??` fallback applies to
+nil or missing values, preserving meaningful zero, false, and empty-string values.
+Native string slicing supports negative indices from the end; the explicit
+`max(0, start)` above preserves the removed helper's clamping behavior.
+
+Binary helpers (`bytes`, `hex.encode`, `base64.encode`, `base64.decode`) remain
+available for composing provider signatures. `base64.decode` returns bytes;
+Expr's `fromBase64` returns a string. `time.nowUnix` and `time.nowRFC3339` return
+formatted strings; Expr's native `now()` returns a time value.
+
+Use `tokenRatio` when a rule needs an explicit threshold without the
+generic heuristic's wordlist check. For example, this skips low-entropy or
+readable-looking candidates:
+
+```expr
+entropy(finding["secret"]) < 3.0 ||
+tokenRatio(finding["secret"]) >= 2.5
+```
+
+Exact secret values can be filtered without storing the plaintext:
+
+```toml
+filter = '''
+crypto.sha256(finding["secret"]) in [
+    "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+]
+'''
+```
+
+The constant list on the right side of `in` is compiled into a lookup map.
+This explicit global filter also applies to internal component matches.
+`.betterleaksignore` entries suppress primary secrets and exclude ignored component
+matches before provider work. If a required component has no remaining matches,
+the primary is suppressed; ignored optional components are treated as absent.
+See [ignore semantics](scanning.md#ignore-exact-secret-values).
+Ignore files do not modify the configured filter.
+
+Example:
+
+```toml
+filter = '''
+(
+    matchesAny(attributes["git.author_name"], [`\[bot\]$`]) &&
+    matchesAny(attributes["path"], [`^tests/fixtures/`]) &&
+    containsAny(finding["secret"], ["_MOCK_", "_TEST_"])
+)
+||
+(
+    matchesAny(attributes["path"], [`(?i)\.(?:md|txt|csv)$`]) &&
+    (
+        containsAny(finding["line"], ["Example:", "Placeholder:", "Replace this with"]) ||
+        finding["secret"] == "SUPER_SECRET_EXAMPLE_KEY_12345"
+    )
+)
+||
+(
+    entropy(finding["secret"]) <= 2.5 &&
+    failsTokenEfficiency(finding["secret"])
+)
+'''
+```
+
+Rules may set a default confidence and broad rules may refine it in their
+filter:
+
+```toml
+[[rules]]
+id = "generic-api-key"
+confidence = "low"
+filter = '''
+let level = matchesAny(finding["line"], [`(?i)\b[a-z0-9]+[_.-]+token\b`]) ? "medium" : "low";
+let _ = setConfidence(level);
+false
+'''
+```
+
+`--confidence low|medium|high` keeps findings at or above that level. Findings
+without a recognized confidence attribute remain included.
+
+## Validation and credential analysis
+
+Validation verifies whether a detected secret is live by evaluating the rule's
+`validate` Expr expression. CLI scans leave validation disabled by default.
+Enable it with `-v` / `--validate` or `BETTERLEAKS_VALIDATE=true`.
+
+Credential analysis evaluates a rule's `analyze` expression after validation
+returns `valid`. Enable it with `-a` / `--analyze` or `BETTERLEAKS_ANALYZE=true`,
+which implies validation. Both environment variables default to `false` when
+unset; explicit flags override the corresponding variable. Use
+`--validate --analyze=false` for validation only, or
+`--analyze=false --validate=false` to force detection only.
+Analysis returns a small identity and positive-only capability model; severity is derived by
+Betterleaks rather than assigned by the rule. Analysis without positive capability
+evidence has `unknown` severity, including an empty analysis result. See the
+[finding schema](schemas/finding.schema.json) for the normalized result shape.
+
+Validation and analysis expressions can make outbound requests and should be
+loaded only from trusted configuration. CLI scans make no credential provider
+requests unless validation or analysis is enabled through flags or environment
+variables; commands that fetch a remote scan source may still use the network.
+
+Analysis results may also include a `metadata` object for provider-specific
+evidence discovered during analysis, such as permission names.
+Unlike opt-in HTTP debug data, analysis metadata is part of normal JSON output.
+
+Analysis expressions can use the same pure `filter` matching helpers as
+validation expressions. They also receive an `analysis` namespace:
+
+| Value or function | Description |
+| :--- | :--- |
+| `analysis.capabilities(conditions)` | Converts a map of capability names to boolean predicates into the canonical positive-only capability list. Unknown names and non-boolean values fail evaluation. |
+
+The successful validation result remains available through `validation`.
+Validation expressions can place provider evidence in the reserved `analysis`
+object. Analysis expressions read that private, cached value through
+`validation.analysis`; it is never included in reports.
+Providers that return a delimited scope header can normalize it once in their
+validation expression with `strings.splitTrim(value, separator)`.
+
+Validation runs asynchronously, and responses are cached in memory so duplicate
+secrets only trigger one network request.
+
+Rule authors should target five or fewer analysis requests per credential and
+reuse `validation.analysis` whenever possible. Prefer `GET` for validation;
+use `POST` only when it cannot create or modify provider resources. See the
+[rule contribution safety requirements](../.github/CONTRIBUTING.md#provider-safety-for-validation-and-analysis).
+
+To revalidate one known credential without scanning or re-running a rule's
+detection regex, use `betterleaks validate --rule <rule-id>`. See the
+[`validate` and `analyze` command guide](scanning.md#validate-and-analyze) for stdin, multipart
+credentials, captures, request controls, and reporting.
+
+### Request limits
+
+Live validation and analysis can send many authentication requests when a scan finds
+different candidate credentials for the same provider. The following flags
+limit the actual outbound requests made by generic HTTP validators and the
+built-in AWS, GCP, and Azure validators:
+
+| Flag | Description |
+| :--- | :--- |
+| `--provider-max-requests N` | Sends at most `N` validation and analysis requests to each provider target origin during the scan. `0` means unlimited. |
+| `--provider-rps N` | Limits all provider requests to `N` requests per second. Fractional values are accepted; `0` means unlimited. |
+| `--provider-rps-rule RULE=N` | Limits one exact rule ID to `N` provider requests per second. Repeat the flag for additional rules. |
+
+The global and rule-specific rates compose: a request must satisfy both limits.
+Rate limits use strict spacing with no initial burst. A provider target is an
+HTTP origin such as `https://api.github.com`; multiple rules that use the same
+origin share its maximum-request budget. Redirects and multi-request validation
+expressions count each actual outbound request. Validation cache hits do not
+count. Time spent waiting for an RPS slot does not consume
+`--provider-timeout`; that timeout begins when the provider request starts and
+remains active while its response body is read. Redirect hops share that one
+provider-time budget, while each hop still counts as an outbound request for RPS
+and maximum-request enforcement.
+
+For example:
+
+```sh
+betterleaks filesystem . -a \
+  --provider-max-requests 1000 \
+  --provider-rps 10 \
+  --provider-rps-rule github-pat=2 \
+  --provider-rps-rule github-fine-grained-pat=2
+```
+
+Once a provider target reaches `--provider-max-requests`, further provider checks
+that need to call it return `needs_validation` without sending the request. The
+finding includes `betterleaks_max_requests_hit`,
+`betterleaks_validation_target`, `betterleaks_validation_max_requests`, and
+`betterleaks_validation_requests_sent` metadata.
+
+### Result format
+
+A validation expression must return a map with a `"result"` key. Supported
+statuses are:
+
+- `"valid"`
+- `"needs_validation"`
+- `"invalid"`
+- `"revoked"`
+- `"unknown"`
+- `"error"`
+
+The `result` value must be a string naming one of these statuses (case-insensitive).
+A missing, non-string, or unrecognized result produces `error` with an explanation.
+Use `unknown` explicitly when the rule cannot establish credential liveness.
+The optional `reason` must be a string and becomes `Analysis.StatusReason`.
+
+Validation has a closed result contract:
+
+```expr
+{"result": "valid", "reason": "Accepted", "metadata": {"account": "demo"}, "analysis": {"private_evidence": "..."}}
+```
+
+`metadata` is an optional object exported as `Analysis.StatusMetadata`.
+`analysis` is an optional private object available only to the subsequent
+expression as `validation.analysis`. Unknown top-level keys are errors.
+Enrichment writes its own `Analysis.Reason` and `Analysis.Metadata`; neither
+replaces the status explanation or metadata. Enrichment failures retain the
+validation status.
+
+### Validation functions
+
+Validation and analysis expressions can also use the general helper functions
+listed above. `setConfidence` is available only to finding filters
+because it mutates finding output.
+
+| Function | Description |
+| :--- | :--- |
+| `http.get(url, headers)` | Sends a GET request. |
+| `http.post(url, headers, body)` | Sends a POST request. |
+| `validate.unknown(response)` | Returns `{"result": "unknown", "reason": "HTTP <status>"}` for unexpected HTTP responses. |
+| `env.get(name)` | Reads an allowlisted environment variable. Requires `--provider-env-vars`. |
+| `env.getOrDefault(name, default)` | Reads an allowlisted environment variable, or returns `default` when env access is disabled, the name is not allowlisted, or the variable is unset. |
+| `strings.obfuscate(secret)` | Returns a same-length, shape-preserving stand-in for a secret. Useful before sending context to third-party APIs. |
+| `strings.splitTrim(value, separator)` | Splits a string, trims each part, and removes empty parts. The separator must not be empty. |
+| `toJSON(value)` | Native Expr JSON serialization. String inputs become quoted JSON string literals. |
+| `strings.urlQueryEscape(value)` | URL-query escapes a string. Useful when building signed validation request URLs. |
+| `crypto.md5(bytes)` | Returns the MD5 hash as bytes. |
+| `crypto.sha1(bytes)` | Returns the SHA-1 hash as bytes. |
+| `crypto.sha256(string)` | Returns the SHA-256 digest as 64 lowercase hexadecimal characters, without a prefix. |
+| `crypto.hmacSha1(key, msg)` | Returns the HMAC-SHA1 signature as bytes. |
+| `crypto.hmacSha256(key, msg)` | Returns the HMAC-SHA256 signature as bytes. |
+| `hex.encode(bytes)` | Returns lowercase hex encoding. |
+| `time.nowUnix()` | Returns the current Unix timestamp as a string. |
+| `time.nowRFC3339()` | Returns the current UTC timestamp in RFC3339 format. |
+| `aws.validate(key, secret)` | Makes a SigV4-signed AWS STS request to validate AWS credentials. |
+| `gcp.validate(json)` | Exchanges GCP service-account or ADC JSON for an OAuth token and returns validation metadata. |
+| `azure.validateStorage(account, key)` | Makes a SharedKey-signed Azure Storage request to validate an account key. |
+| `azure.validateServicePrincipal(tenant, client, secret)` | Requests a Microsoft identity token to validate an Azure service principal secret. |
+| `azure.validateAppConfig(endpoint, id, secret)` | Makes an HMAC-signed Azure App Configuration request to validate a connection string. |
+| `azure.validateServiceBusSAS(connectionString)` | Makes a SAS-authenticated Azure Service Bus/Event Hub request to validate a connection string. |
+| `base64.encode(bytes)` / `base64.decode(string)` | Encodes or decodes standard base64. |
+| `let name = value; expr` | Binds a variable to avoid repeating sub-expressions. |
+
+`http.get` and `http.post` return a response map:
+
+| Field | Description |
+| :--- | :--- |
+| `r.status` | HTTP status code as an integer. |
+| `r.body` | Raw response body as a string. |
+| `r.json` | Parsed JSON body as a dynamic object. Empty object if the body is not JSON. |
+| `r.headers` | Response headers with lowercased keys. |
+
+Example:
+
+```toml
+validate = '''
+let r = http.get("https://api.github.com/app", {
+    "Accept": "application/vnd.github+json",
+    "Authorization": "Bearer " + finding["secret"]
+  });
+r.status == 200 && (r.json?.slug ?? "") != "" ? {
+    "result": "valid",
+    "metadata": {
+      "slug": r.json?.slug ?? "",
+      "name": r.json?.name ?? "",
+      "html_url": r.json?.html_url ?? "",
+      "external_url": r.json?.external_url ?? ""
+    }
+  } : r.status in [401, 403] ? {
+    "result": "invalid",
+    "reason": "Unauthorized"
+  } : validate.unknown(r)
+'''
+```
+
+For more complex validation setups, such as Basic Auth, dynamic request bodies,
+HMAC signatures, or composite rules, check the built-in
+rules in `cmd/generate/config/rules`.
+
+## Explicit credential revocation
+
+A rule may define a `revoke` Expr independently of `validate` and `analyze`.
+Only `betterleaks revoke --rule <id>` executes this field. Scans, direct
+validation, and direct analysis never compile or execute it. `config check`,
+`config show`, and rule generation can compile it to catch authoring errors;
+they do not execute it.
+
+The expression receives the same `finding.secret`, `finding.captures`, and
+`components` inputs as validation. Required captures are inferred from the
+revocation expression alone. It has no `validation` result: put any lookup or
+authentication steps needed for revocation directly in the expression.
+
+Use `let` bindings and conditional expressions for lookup-then-delete workflows.
+HTTP responses expose parsed JSON as `response.json`, raw text as `response.body`,
+and lowercase header names as `response.headers`. JSON field access and indexing,
+`findMatch(response.body, pattern)`, and header access can extract values for a
+later request. Check the lookup response and extracted value before sending the
+revocation request.
+
+The revocation scope includes the existing provider helpers plus
+`http.delete(url, headers)` and `revoke.unknown(response)`. DELETE is available
+only in the revocation scope; use `revoke.unknown` in place of `validate.unknown`.
+`http.post` is also available for providers whose revocation API uses POST.
+
+This illustrative rule targets a placeholder API; adapt the endpoint and response
+checks to the provider's documented revocation contract:
+
+```toml
+[[rules]]
+id = "example-token"
+regex = '''example_[A-Za-z0-9]{32}'''
+revoke = '''
+let headers = {"Authorization": "Bearer " + finding.secret};
+let lookup = http.get("https://api.example.com/tokens/self", headers);
+lookup.status != 200 ? revoke.unknown(lookup) : (
+  let id = lookup.json.id ?? "";
+  !(id matches "^[A-Za-z0-9_-]+$") ? {
+    "result": "unknown", "reason": "No unambiguous token ID"
+  } : (
+    let deleted = http.delete("https://api.example.com/tokens/" + id, headers);
+    deleted.status == 204 ? {
+      "result": "revoked", "reason": "Provider confirmed token removal"
+    } : revoke.unknown(deleted)
+  )
+)
+'''
+```
+
+Return an object with `result` set to `revoked`, `unknown`, or `error`, and optional
+`reason` and `metadata` fields. The contract is closed: other fields or malformed
+results produce an `error` status. Report `revoked` only when provider evidence
+confirms invalidation. For asynchronous APIs, an accepted request alone should
+produce `unknown` until completion is confirmed.
+
+The command uses the existing credential report: `analysis.status` carries the
+outcome, with `analysis.status_reason` and `analysis.status_metadata` for public
+details. Supplied secrets, components, and captures are redacted. Intermediate
+response bodies and extracted values stay in the expression unless explicitly
+placed in its public metadata or included in opt-in `--provider-debug` HTTP
+diagnostics. Revocation diagnostics appear under `analysis.debug.revocation`
+and use the same credential redaction as validation and analysis diagnostics.
+
+All workflow steps share the invocation's provider request limits and environment
+allowlist. A request limit or transport timeout leaves revocation unconfirmed.
+Cancellation returns a command error and stops further requests; it cannot undo
+a request already accepted by the provider. Each explicit invocation runs fresh,
+without a revocation result cache or automatic follow-up validation.
+
+## Components
+
+A rule can reference other rules as required or optional components. The
+top-level rule regex remains the reported secret and proximity anchor:
+
+```toml
+[[rules]]
+id = "credential"
+regex = '''credential[=: ]+([A-Za-z0-9_-]+)'''
+components = [
+  { id = "account-id", within = "5L" },
+  { id = "session-token", optional = true, within = "-2L,+4C" },
+]
+```
+
+Components are required by default. Set `optional = true` to attach a component
+when present without making it gate the primary finding; `optional = false` is
+equivalent to omitting the field. `within` is optional and uses the same grammar
+as `--match-context`: `5L` allows the primary match line plus up to four lines
+before and after, `100C` allows 100 characters on either side, and signs make a
+boundary directional (for example, `-2L,+4C`). When `within` is omitted, the
+component only needs to occur in the same fragment.
+
+Validation and analysis receive primary captures and matched components in this
+canonical shape:
+
+```expr
+finding.secret                              // primary rule's selected value
+finding.captures                             // primary rule named capture groups
+components["account-id"]?.secret            // component's selected secret
+components["account-id"]?.captures?.id       // component named capture group
+```
+
+Use `?.` when a component or nested field may be absent, and `??` to select a
+fallback. An optional component that is not found has no entry in `components`:
+
+```expr
+let account = components["account-id"]?.secret ?? "";
+let session = components["session-token"]?.secret ?? "";
+let region = components["account-id"]?.captures?.region ?? "";
+```
+
+Each component combination is validated separately with the same primary
+match. Analysis runs separately for each valid combination, using that
+combination's validation result. Expressions do not iterate over all component
+sets. Filters run before assembly and cannot inspect `components` or provider
+results.
+
+Direct SDK validation supplies this same structure through `credential.Input`:
+`Secret` becomes `finding.secret`, `Captures` becomes `finding.captures`, and
+each `Components[id]` supplies `components[id].secret` and `.captures`.
+Direct validation skips filters and requires callers to supply capture values;
+it does not run the detection regex to reconstruct them.
+
+### Overriding rule defaults with env vars
+
+`env.getOrDefault` lets a rule treat any hardcoded value - an API host, a
+region, an account ID - as a default that the user can override at scan time.
+The rule reads an allowlisted variable and falls back to the literal default
+when env access is disabled, the name is not allowlisted, or the variable is
+unset:
+
+```expr
+let base_url = env.getOrDefault("SOME_BASE_URL", "https://default.example.com");
+let r = http.get(base_url + "/whoami", { ... });
+...
+```
+
+To override the default, the variable must be passed via
+`--provider-env-vars`. Unlike `env.get`, missing allowlist configuration does
+not produce a validation error for `env.getOrDefault`; it just returns the
+provided default. If the variable is allowlisted and explicitly set to an empty
+string, `env.getOrDefault` returns `""`.
+
+The built-in `github-*` rules use `env.getOrDefault` with `GITHUB_BASE_URL` so
+the same rules validate against GitHub Enterprise Server:
+
+```sh
+export GITHUB_BASE_URL=https://github.example.com/api/v3
+betterleaks github --validate --provider-env-vars GITHUB_BASE_URL https://github.example.com/owner
+```
+
+Use `env.get` instead when the env var is required for the validator to be
+meaningful, such as provider API keys used only for validation. `env.get`
+returns an Expr error when env access is disabled or the name is not allowlisted.
+
+## Validation with an LLM
+
+For generic high-entropy matches that no live API can adjudicate, a validation
+expression can ask an LLM whether the candidate looks like a real secret. Use
+`toJSON(...)` for quoted/escaped prompt fragments, `env.get(...)` plus
+`--provider-env-vars` for provider API keys, and `strings.obfuscate(...)`
+when you want to avoid sending the raw candidate to a third-party API.
+
+Provider programs see credential material only. Occurrence-based classification
+belongs in local filters; context and paths are not provider inputs. The example
+below assesses only the obfuscated credential and cannot establish liveness.
+
+Treat positive model output as `"needs_validation"` unless the credential was
+authoritatively verified through a live service.
+
+```toml
+[[rules]]
+id = "generic-secret-llm-filtered"
+description = "Generic secret filtered by an LLM"
+regex = '''(?i)[\w.-]{0,50}?(?:access|auth|(?-i:[Aa]pi|API)|credential|creds|key|passw(?:or)?d|secret|token)(?:[ \t\w.-]{0,20})[\s'"]{0,3}(?:=|>|:{1,3}=|\|\||:|=>|\?=|,)[\x60'"\s=]{0,5}([\w.=-]{10,150}|[a-z0-9][a-z0-9+/]{11,}={0,3})(?:\\?['"\x60]|[\s;]|\\[nr]|$)'''
+keywords = ["access", "api", "auth", "key", "credential", "creds", "password", "secret", "token"]
+
+filter = '''
+entropy(finding["secret"]) <= 4.0 ||
+failsTokenEfficiency(finding["secret"])
+'''
+
+validate = '''
+let obf_secret = strings.obfuscate(finding["secret"]);
+let r = http.post(
+  "https://api.openai.com/v1/chat/completions",
+  {
+    "Authorization": "Bearer " + env.get("OPENAI_API_KEY"),
+    "Content-Type": "application/json"
+  },
+  "{" +
+    "\"model\":\"gpt-5.4-mini\"," +
+    "\"temperature\":0," +
+    "\"max_completion_tokens\":256," +
+    "\"messages\":[" +
+      "{\"role\":\"system\",\"content\":" +
+        toJSON(
+          "Classify whether the candidate is a real usable credential or a benign match. " +
+          "Respond with exactly three lines: VERDICT_SECRET or VERDICT_NOT, confidence from 0.0 to 1.0, and a short justification."
+        ) +
+      "}," +
+      "{\"role\":\"user\",\"content\":" +
+        toJSON("Candidate: " + obf_secret) +
+      "}" +
+    "]" +
+  "}"
+);
+let content = r.json?.choices?.[0]?.message?.content ?? "";
+r.status == 200 && r.body contains "VERDICT_SECRET" ? {
+  "result": "needs_validation",
+  "metadata": {"justification": content}
+} : r.status == 200 && r.body contains "VERDICT_NOT" ? {
+  "result": "invalid",
+  "metadata": {"justification": content}
+} : validate.unknown(r)
+'''
+```
+
+## Expr function naming
+
+General helpers use top-level camelCase names. Domain-specific functions use
+short lower-case namespaces with camelCase function names. Examples: `http.get`, `crypto.hmacSha256`,
+`matchesAny`, `env.getOrDefault`, and `validate.unknown`.
+
+Project-owned data keys stay snake_case. This includes attribute keys, finding
+keys, and response map keys such as `error_code`. Capture names and component
+rule IDs are user-defined and are preserved exactly as map keys.
+
+## Adding an Expr binding
+
+For contributors adding a new Expr function:
+
+1. Choose the expression scope: filter/prefilter, validation, analysis, or explicit revocation.
+2. Add the Go implementation in the namespace file, or create
+   `internal/exprruntime/bindings_<namespace>.go` for a new namespace.
+3. Register the function in that scope's compile and runtime bindings. Revocation-only functions must remain unavailable to scan-time expressions.
+4. Add focused tests for compile and evaluation behavior.
+5. Run `go test ./internal/exprruntime`.
+
+## Credential boundaries
+
+Provider caching identifies a credential by rule ID, primary value, captures and
+component credentials. Paths, source attributes, confidence, full matches, lines
+and context never participate in provider execution or cache identity. Repeated
+occurrences therefore share provider work within one Analyzer operation.
+
+Components must be flat: a referenced component rule cannot have components of
+its own and must match content. Path-only rules may use local filters, but cannot
+declare components, validation, analysis, or revocation. Their content text and offsets are
+empty/zero in filter expressions.
+
+Discovery and Analyzer input are bounded to 100 component combinations per
+finding. `component_sets_truncated` records omitted combinations. A tested valid
+combination establishes validity; otherwise a truncated search yields
+`needs_validation`, preserving each attempted set's actual result.
+
+`Analyzer.Requirements` describes primary and component captures required by both
+provider stages. Optional access and `??` fallbacks do not require a capture;
+dynamic keys cannot be inferred. An explicitly selected named value group is
+populated from the value, and contradictory supplied values are rejected.

@@ -1,0 +1,7 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "npm"
+version_scheme = "semver2"
+tag_format = "v$version"
+update_changelog_on_bump = true
+bump_message = "chore(release): v$current_version → v$new_version"

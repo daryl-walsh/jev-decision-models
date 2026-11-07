@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history for betterleaks and commit-message checks
+
+      # Installs python, uv, fnox, age and betterleaks at the versions in mise.toml.
+      - uses: jdx/mise-action@v3
+
+      - name: Check
+        run: mise run ci
+        env:
+          # Only needed if tests decrypt secrets: add a CI age key as a recipient
+          # in fnox.toml and store the private key as this repository secret.
+          FNOX_AGE_KEY: ${{ secrets.FNOX_AGE_KEY }}
+
+      - name: Commit messages follow Conventional Commits
+        if: github.event_name == 'pull_request'
+        run: uv run cz check --rev-range "origin/${{ github.base_ref }}..HEAD"

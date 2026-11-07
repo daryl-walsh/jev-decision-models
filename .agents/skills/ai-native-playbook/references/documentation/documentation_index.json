@@ -1,0 +1,556 @@
+{
+  "total_files": 8,
+  "categories": {
+    "overview": [
+      "01-what-changes-where-to-start.md",
+      "02-capture-intent.md",
+      "04-Plan-mode-as-the-default-start.md",
+      "05-Agents-md_Claude-md.md",
+      "06-skills-as-institutional-knowledge.md",
+      "07-parallel-sessions-and-subagents.md",
+      "08-give-agent-a-feedback-loop.md"
+    ],
+    "architecture": [
+      "03-Requirements-and-design.md"
+    ]
+  },
+  "files": [
+    {
+      "path": "01-what-changes-where-to-start.md",
+      "filename": "01-what-changes-where-to-start.md",
+      "category": "overview",
+      "size_bytes": 3652,
+      "title": "01-what-changes-where-to-start",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 2,
+            "text": "The shifts",
+            "line": 5
+          },
+          {
+            "level": 2,
+            "text": "How the plays work",
+            "line": 20
+          },
+          {
+            "level": 2,
+            "text": "Pick your first play",
+            "line": 38
+          }
+        ],
+        "code_blocks": [],
+        "tables": 1,
+        "images": 1,
+        "links": 1,
+        "word_count": 17,
+        "line_count": 49
+      },
+      "summary": "Sections: The shifts, How the plays work, Pick your first play\nOrganizations have started using AI to write code at a speed unthinkable one year ago, yet the processes around the code haven't changed at the same pace.\n(17 words, 0 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 1,
+        "cross_references": 0,
+        "code_blocks": 0,
+        "images": 1,
+        "quality_scores": {
+          "avg_code_quality": 0
+        }
+      }
+    },
+    {
+      "path": "02-capture-intent.md",
+      "filename": "02-capture-intent.md",
+      "category": "overview",
+      "size_bytes": 6332,
+      "title": "02-capture-intent",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 3,
+            "text": "Capture as intent.md",
+            "line": 1
+          },
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 13
+          },
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 20
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 31
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 39
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 59
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 64
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "markdown",
+            "code": "# Intent: claims status self-service\nAuthor: J. Ortiz (claims operations). Status: draft.\n## Problem\nCustomers phone the contact center to ask where their claim is.\nHandlers spend roughly a third of call time on status-only queries.\n## Proposed outcome\nCustomers see claim status, next step and expected date in the portal.\n## Affected users and systems\nClaims handlers, portal team, claims-core API.\n## Constraints\nNo new PII in the portal session. Existing authentication only.\n## Open questions\nDo third-party loss adjusters need access too?"
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 21,
+        "line_count": 67
+      },
+      "summary": "Sections: Capture as intent.md\nLesson 2\n(21 words, 1 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 1,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.5
+        }
+      }
+    },
+    {
+      "path": "03-Requirements-and-design.md",
+      "filename": "03-Requirements-and-design.md",
+      "category": "architecture",
+      "size_bytes": 7065,
+      "title": "03-Requirements-and-design",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 15
+          },
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 21
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 27
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 36
+          },
+          {
+            "level": 2,
+            "text": "Requirements",
+            "line": 51
+          },
+          {
+            "level": 2,
+            "text": "Design",
+            "line": 57
+          },
+          {
+            "level": 2,
+            "text": "How each constraint in the intent is met",
+            "line": 62
+          },
+          {
+            "level": 2,
+            "text": "Open questions from the intent",
+            "line": 68
+          },
+          {
+            "level": 2,
+            "text": "Areas of concern",
+            "line": 71
+          }
+        ],
+        "code_blocks": [],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 35,
+        "line_count": 97
+      },
+      "summary": "Sections: Requirements, Design, How each constraint in the intent is met, Open questions from the intent, Areas of concern\nRequirements and design Lesson 3 5 min\n(35 words, 0 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 0,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 0
+        }
+      }
+    },
+    {
+      "path": "04-Plan-mode-as-the-default-start.md",
+      "filename": "04-Plan-mode-as-the-default-start.md",
+      "category": "overview",
+      "size_bytes": 7458,
+      "title": "04-Plan-mode-as-the-default-start",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 5
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 15
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 25
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 57
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 62
+          },
+          {
+            "level": 4,
+            "text": "Claude Code in auto mode",
+            "line": 67
+          },
+          {
+            "level": 4,
+            "text": "Legacy systems and the source of truth",
+            "line": 75
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "markdown",
+            "code": "# Plan: claims status self-service (from intent.md and spec.md)\n\n## Files that change\n\nportal/src/claims/StatusPanel.tsx (new), claims-api/routes/status.py, claims-api/tests/test_status.py\n\n## Order of work\n\n1. Add the status endpoint behind existing auth (R1, R2, R3).\n2. Panel against the endpoint, with the 60-second cache (R1, R4).\n3. Wire into the portal nav.\n\n## Risks\n\nThe claims-core API rate-limits at 50 rps; the panel must cache (spec concern 3).\n\n## Proof\n\ntest_status.py covers the four claim states (R2) and fails on any extra field (R3); screenshot matches the approved mock."
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 24,
+        "line_count": 93
+      },
+      "summary": "Engineers start Claude Code sessions in plan mode, give Claude the approved spec.md from Stage 2: Design, and let it interview them, iterating on the plan until they are happy with it.\n(24 words, 1 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 1,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 8.5
+        }
+      }
+    },
+    {
+      "path": "05-Agents-md_Claude-md.md",
+      "filename": "05-Agents-md_Claude-md.md",
+      "category": "overview",
+      "size_bytes": 2932,
+      "title": "05-Agents-md_Claude-md",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 5
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 10
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 18
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 47
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 52
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "markdown",
+            "code": "# Claims portal\n## Commands\n- Build: make build\n- Test: make test (unit), make itest (integration, needs docker)\n- Lint: make lint (runs in CI; fix before pushing)\n- Run: make run (portal on :3000, claims-api on :8000)\n## Conventions\n- claims-api is Python 3.12 and FastAPI. portal is TypeScript and React.\n- Every endpoint needs a test in claims-api/tests.\n- Dates cross the API as ISO 8601, never as formatted text.\n## Architecture\n- portal/ is the customer site, claims-api/ is its backend, and\n  intent/ holds the intent.md, spec.md and plan.md for each change.\n- Only claims-api talks to claims-core. The portal never calls it.\n- claims-core allows 50 requests a second. Cache reads; never poll it.\n## Things Claude gets wrong\n- Do not log request or response bodies in claims-api; they can hold PII.\n- Do not bump dependency versions; the platform team owns them."
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 14,
+        "line_count": 61
+      },
+      "summary": "CLAUDE.md gives Claude the context a new joiner would need, covering conventions, commands, architecture, and the mistakes the team sees most often. Knowledge that used to sit in people's heads and on...\n(14 words, 1 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 1,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 9.0
+        }
+      }
+    },
+    {
+      "path": "06-skills-as-institutional-knowledge.md",
+      "filename": "06-skills-as-institutional-knowledge.md",
+      "category": "overview",
+      "size_bytes": 6591,
+      "title": "Secure API review",
+      "structure": {
+        "title": "Secure API review",
+        "headers": [
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 6
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 11
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 20
+          },
+          {
+            "level": 2,
+            "text": "```markdown",
+            "line": 25
+          },
+          {
+            "level": 1,
+            "text": "Secure API review",
+            "line": 32
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 46
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 51
+          },
+          {
+            "level": 4,
+            "text": "Hooks as build-time guardrails",
+            "line": 56
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "json",
+            "code": "{\n  \"hooks\": {\n    \"PostToolUse\": [\n      {\n        \"matcher\": \"Edit|Write\",\n        \"hooks\": [\n          { \"type\": \"command\",\n            \"command\": \"${CLAUDE_PROJECT_DIR}/.claude/hooks/api-policy.sh\",\n            \"args\": [] }\n        ]\n      }\n    ]\n  }\n}"
+          },
+          {
+            "language": "bash",
+            "code": "#!/bin/bash\n# Backs rule 4 of the secure-api-review skill with the same script the skill runs.\nfile=$(jq -r '.tool_input.file_path')\ncase \"$file\" in\n  \"$CLAUDE_PROJECT_DIR\"/claims-api/routes/*.py) ;;\n  *) exit 0 ;;                                   # not an endpoint\nesac\ncd \"$CLAUDE_PROJECT_DIR\" || exit 2\nif ! found=$(scripts/check-endpoints.sh \"${file#\"$CLAUDE_PROJECT_DIR\"/}\"); then\n  echo \"secure-api-review rule 4: a pii field reaches a log or an error message.\" >&2\n  echo \"$found\" >&2\n  exit 2\nfi"
+          },
+          {
+            "language": "text",
+            "code": "secure-api-review rule 4: a pii field reaches a log or an error message.\nclaims-api/routes/status.py:10: policy_holder_name"
+          },
+          {
+            "language": "yaml",
+            "code": "name: API policy\non: pull_request\njobs:\n  check-endpoints:          # a required check in branch protection\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: scripts/check-endpoints.sh claims-api/routes/*.py"
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 38,
+        "line_count": 139
+      },
+      "summary": "**Secure API review**\nSections: ```markdown\nSkills are how an organization makes its institutional knowledge operational. The instructions are explicit, version controlled, applied broadly, and updated centrally when policy changes. The rule of...\n(38 words, 4 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 4,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 9.125
+        }
+      }
+    },
+    {
+      "path": "07-parallel-sessions-and-subagents.md",
+      "filename": "07-parallel-sessions-and-subagents.md",
+      "category": "overview",
+      "size_bytes": 4845,
+      "title": "07-parallel-sessions-and-subagents",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 10
+          },
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 18
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 24
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 31
+          },
+          {
+            "level": 2,
+            "text": "```markdown",
+            "line": 36
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 49
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 54
+          }
+        ],
+        "code_blocks": [],
+        "tables": 0,
+        "images": 0,
+        "links": 1,
+        "word_count": 20,
+        "line_count": 57
+      },
+      "summary": "Sections: ```markdown\nOne engineer can drive several streams of work at once.\n(20 words, 0 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 0,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 0
+        }
+      }
+    },
+    {
+      "path": "08-give-agent-a-feedback-loop.md",
+      "filename": "08-give-agent-a-feedback-loop.md",
+      "category": "overview",
+      "size_bytes": 5661,
+      "title": "08-give-agent-a-feedback-loop",
+      "structure": {
+        "title": "",
+        "headers": [
+          {
+            "level": 4,
+            "text": "What changes",
+            "line": 9
+          },
+          {
+            "level": 4,
+            "text": "Getting started",
+            "line": 15
+          },
+          {
+            "level": 4,
+            "text": "How to execute it",
+            "line": 20
+          },
+          {
+            "level": 4,
+            "text": "What it looks like",
+            "line": 30
+          },
+          {
+            "level": 4,
+            "text": "Governance considerations",
+            "line": 46
+          },
+          {
+            "level": 4,
+            "text": "How to measure it",
+            "line": 53
+          }
+        ],
+        "code_blocks": [
+          {
+            "language": "markdown",
+            "code": "## Verifying your work\n\n- Build: make build (must finish with \"Build succeeded\")\n- Test: make test (all green; never skip or delete a failing test)\n- Lint: make lint (zero warnings)\n\nRun all three before reporting any task complete, and paste the output.\nIf a test fails, fix the code, not the test."
+          }
+        ],
+        "tables": 0,
+        "images": 0,
+        "links": 0,
+        "word_count": 15,
+        "line_count": 60
+      },
+      "summary": "Always give Claude/Agent a way to verify its own work, whether tests, a build, or a screenshot diff. A session checks its own work and fixes its own mistakes before an engineer sees them.\n(15 words, 1 code blocks)",
+      "content": null,
+      "_enhanced": true,
+      "parsed_data": {
+        "tables": 0,
+        "cross_references": 0,
+        "code_blocks": 1,
+        "images": 0,
+        "quality_scores": {
+          "avg_code_quality": 9.0
+        }
+      }
+    }
+  ]
+}

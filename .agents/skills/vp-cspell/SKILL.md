@@ -1,0 +1,44 @@
+---
+name: vp-cspell
+description: >-
+  Diagnose and fix cspell unknown-word findings or bootstrap repository cspell
+  configuration. Boundary: not for other spell checkers or general lint errors.
+---
+
+# cspell
+
+Fix the text when it is wrong. Configure cspell only when the spelling is
+intentional and the repository owns an appropriate configuration surface.
+
+## Repository Policy
+
+Before using the decision order, look for the repository's spelling policy in
+cspell configuration comments, contributor or agent documentation that names
+cspell, and repository-local spelling skills. Follow that policy, including
+dictionary formatting, directive explanations, and term-promotion thresholds.
+Use the defaults below only for cases the policy does not cover.
+
+When no policy exists, use these defaults. Existing local directives are
+evidence of word usage, not a spelling policy; do not copy them as a convention.
+
+## Default Decision Order
+
+1. Correct an actual typo.
+2. Reuse an established repository spelling or canonical product name.
+3. Add a real reusable term to the narrowest appropriate dictionary.
+4. Use a local directive for intentional one-off text.
+5. Ignore patterns only for generated, encoded, or structurally noisy content.
+
+Before choosing between steps 3 and 4, search the repository for the word,
+including its dictionaries and existing local directives. Skip the directive
+when a dictionary already lists the word. A word that appears in more than one
+file, or names a common tool, product, or language, is reusable: add it to the
+dictionary and remove the local directives it makes redundant. Repeating the
+same directive across files is the signal to promote it.
+
+Do not add a word globally merely to silence one occurrence, and do not invent
+configuration for an IDE-only warning when the repository has no cspell setup.
+Run the repository's configured check after changes.
+
+Read `references/decision-tree.md` for ambiguous cases and
+`references/config-bootstrapping.md` when introducing configuration.

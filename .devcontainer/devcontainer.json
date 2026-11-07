@@ -1,0 +1,22 @@
+{
+  "name": "${localWorkspaceFolderBasename} (agent sandbox)",
+  "build": { "dockerfile": "Dockerfile" },
+  "remoteUser": "vscode",
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}-venv,target=${containerWorkspaceFolder}/.venv,type=volume",
+    "source=py-starter-mise,target=/home/vscode/.local/share/mise,type=volume",
+    "source=py-starter-uv-cache,target=/home/vscode/.cache/uv,type=volume",
+    "source=claude-config-${devcontainerId},target=/home/vscode/.claude,type=volume",
+    "source=codex-config-${devcontainerId},target=/home/vscode/.codex,type=volume"
+  ],
+  "containerEnv": {
+    "MISE_YES": "1",
+    "UV_LINK_MODE": "copy"
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["charliermarsh.ruff", "meta.pyrefly", "astral-sh.ty"]
+    }
+  }
+}

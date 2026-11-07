@@ -1,0 +1,55 @@
+# Project-level Codex config: same boundary as .claude/settings.json.
+# Codex loads project .codex/ files only after you trust the project.
+#
+# Permission profiles are in beta and may change. Codex IGNORES
+# default_permissions if any loaded config sets `sandbox_mode` or
+# [sandbox_workspace_write] (including ~/.codex/config.toml) or you pass
+# --sandbox. Remove those if this profile doesn't seem to apply.
+# Docs: https://developers.openai.com/codex/permissions
+
+default_permissions = "mise-uv"
+approval_policy = "never"
+sandbox_mode = "workspace-write"
+
+[features]
+network_proxy = true   # required for the domain rules below to apply
+
+[permissions.mise-uv]
+extends = ":workspace"   # project folder writable, .git/.codex stay read-only
+[mcp_servers.crawl4ai]
+command = "sh"
+# The local adapter reads CRAWL4AI_API_TOKEN; fnox exports CRAWL4AI_KEY.
+args = ["-c", 'export CRAWL4AI_API_TOKEN="${CRAWL4AI_KEY:?CRAWL4AI_KEY must be loaded from fnox}"; exec /home/daryl/mcp-local/crawl4ai/local-dply/.venv-mcp/bin/python /home/daryl/mcp-local/crawl4ai/local-dply/scripts/crawl4ai_mcp.py']
+env_vars = ["CRAWL4AI_KEY"]
+default_tools_approval_mode = "approve"
+startup_timeout_sec = 45
+tool_timeout_sec = 240
+# Where mise and uv install tools, keep state, and cache downloads.
+[permissions.mise-uv.filesystem]
+"~/.local/share/mise" = "write"
+"~/.local/state/mise" = "write"
+"~/.cache/mise" = "write"
+"~/.cache/uv" = "write"
+"~/.cache/prek" = "write"
+
+[permissions.mise-uv.network]
+enabled = true
+
+# Everything else is blocked. Add hosts as projects need them, e.g.
+# "download.pytorch.org", "huggingface.co", "**.hf.co".
+[permissions.mise-uv.network.domains]
+"pypi.org" = "allow"                   # uv: package index
+"files.pythonhosted.org" = "allow"     # uv: package files
+"github.com" = "allow"                 # mise: tool releases
+"api.github.com" = "allow"             # mise: release lookups
+"*.githubusercontent.com" = "allow"    # mise: release downloads
+"**.jdx.dev" = "allow"                 # mise: version metadata
+"api.osv.dev" = "allow"                # uv audit
+"tuf-repo-cdn.sigstore.dev" = "allow"  # mise: Python artifact verification
+"cdn.playwright.dev" = "allow"         # Playwright: browser downloads
+"127.0.0.1" = "allow"                  # Local development
+"localhost" = "allow"                  # Local development
+# NotebookLM web login and API hosts (notebooklm-py 0.8.5).
+"accounts.google.com" = "allow"  # Google sign-in and session-cookie renewal
+"notebook.google.com" = "allow"  # NotebookLM: current default web endpoint
+"notebooklm.google.com" = "allow"  # NotebookLM: legacy endpoint / login redirect

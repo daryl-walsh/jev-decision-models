@@ -1,0 +1,94 @@
+# Run by prek (https://prek.j178.dev). `repo: builtin` hooks are prek-only,
+# so use prek rather than classic pre-commit.
+#
+# Every Python tool runs through `uv run --frozen`, so hooks use the same
+# versions pinned in uv.lock as CI does. No separate hook environments.
+
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+default_stages: [pre-commit]
+
+repos:
+  # Rust-native, offline, zero setup.
+  - repo: builtin
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: detect-private-key
+      # Stops model weights, datasets and checkpoints from landing in git.
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+
+  - repo: local
+    hooks:
+      # ---------------------------------------------------- pre-commit
+      - id: fnox-encryption
+        name: fnox encrypted secrets only
+        entry: uv run --frozen python scripts/check_secrets.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: betterleaks
+        name: betterleaks (staged secrets)
+        entry: mise x -- betterleaks git --pre-commit --redact --staged --verbose
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: nbstripout
+        name: nbstripout (strip notebook outputs)
+        entry: uv run --frozen nbstripout
+        language: system
+        types: [jupyter]
+
+      - id: ruff-check
+        name: ruff check --fix
+        entry: uv run --frozen ruff check --fix --force-exclude
+        language: system
+        types_or: [python, pyi, jupyter]
+        require_serial: true
+
+      - id: ruff-format
+        name: ruff format
+        entry: uv run --frozen ruff format --force-exclude
+        language: system
+        types_or: [python, pyi, jupyter]
+        require_serial: true
+
+      - id: uv-lock
+        name: uv.lock up to date
+        entry: uv lock --check
+        language: system
+        files: ^(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+
+      - id: typecheck
+        name: mise typecheck (pyright strict)
+        entry: mise run typecheck
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false
+
+      # ---------------------------------------------------- commit-msg
+      - id: commitizen
+        name: conventional commit message
+        entry: uv run --frozen cz check --allow-abort --commit-msg-file
+        language: system
+        stages: [commit-msg]
+
+      # ---------------------------------------------------- pre-push
+      # - id: pytest
+      #   name: pytest (fast tests)
+      #   entry: uv run --frozen pytest -q -m "not slow and not gpu and not integration"
+      #   language: system
+      #   pass_filenames: false
+      #   always_run: true
+      #   stages: [pre-push]

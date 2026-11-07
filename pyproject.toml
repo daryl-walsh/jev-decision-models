@@ -1,0 +1,123 @@
+[project]
+name = "how-jev-works"
+version = "0.1.0"
+description = "Jev Decision Models testing"
+readme = "README.md"
+authors = [{ name = "Daryl", email = "darylwalsh@gmail.com" }]
+requires-python = ">=3.13.15,<3.14"
+dependencies = [
+    "ollama>=0.4",
+    "pandas>=2.2",
+    "scikit-learn>=1.5",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "tqdm>=4.66",
+    "instructor>=1.15.3",
+    "torch",
+]
+
+# [tool.uv.sources]
+# torch = { index = "pytorch" }
+# torchvision = { index = "pytorch" }
+# torchaudio = { index = "pytorch" }
+
+# [build-system]
+# requires = ["uv_build>=0.13.7,<0.14.0"]
+# build-backend = "uv_build"
+
+# Dev tools live here (not in mise) so uv.lock pins them and every
+# machine, CI runner and agent uses the exact same versions.
+[dependency-groups]
+dev = [
+    "commitizen==4.19.3",
+    "nbstripout==0.9.1",
+    "prek==0.5.9",
+    "pyright[nodejs]==1.1.414",
+    "pytest==9.2.0",
+    "pytest-cov==7.1.0",
+    "pytest-socket==0.8.1",
+    "ruff==0.17.4",
+    "ty>=0.0.1a1",
+    "pre-commit",
+    "commitizen>=4.16.3",
+    "marimo",
+    "ipykernel",
+    "huggingface_hub",
+    "tqdm",
+    "transformers",
+    "datasets",
+    "accelerate",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = [
+    "data", "models", "outputs", "agent-user-msg",
+    ".agents", ".claude", ".codex", ".devcontainer",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "B",        # bugbear
+    "UP",       # pyupgrade
+    "SIM",      # simplify
+    "N",        # pep8-naming
+    "PTH",      # use pathlib
+    "S",        # bandit security checks
+    "RUF",      # ruff-specific
+    "ANN",      # require annotations (keeps the type checkers useful)
+    "PL",       # pylint subset
+    "T20",      # explicit stdout/stderr writes keep command output intentional
+]
+[tool.ruff.lint.per-file-ignores]
+# S101: pytest assertions express expected behavior.
+# PLR2004: expected literal values make test cases readable.
+"tests/**" = ["S101", "PLR2004"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+# ---------------------------------------------------------------- types
+[tool.pyright]
+typeCheckingMode = "strict"
+pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
+include = ["src", "tests", "scripts"]
+exclude = [".agents", ".claude", ".codex", ".devcontainer", "agent-user-msg"]
+reportUnnecessaryTypeIgnoreComment = true
+
+# ---------------------------------------------------------------- tests
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config", "--import-mode=importlib", "--disable-socket"]
+markers = [
+    "slow: long-running tests (training loops, large fixtures)",
+    "gpu: requires a CUDA/MPS device",
+    "integration: exercises multiple components with external services mocked",
+]
+
+[tool.coverage.run]
+source = ["src", "scripts"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+
+# ---------------------------------------------------------------- commits
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "uv"          # bumps pyproject.toml *and* uv.lock
+tag_format = "v$version"
+update_changelog_on_bump = true
+major_version_zero = true        # breaking changes bump 0.x minor until you go 1.0

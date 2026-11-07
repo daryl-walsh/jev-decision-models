@@ -1,0 +1,36 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# Existing secrets scripts use four spaces; shell formatting is outside task 03.
+[*.sh]
+indent_size = 4
+
+# Generated lockfile layout belongs to Bun.
+[bun.lock]
+indent_size = unset
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+# Web, Configuration, and Serialization files
+[*.{js,json,yml,yaml,html,css}]
+indent_style = space
+indent_size = 2
+
+# Markdown files (preserving trailing spaces for line breaks)
+[*.md]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+
+# Makefiles require actual tabs
+[Makefile]
+indent_style = tab

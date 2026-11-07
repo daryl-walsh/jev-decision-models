@@ -1,0 +1,10 @@
+{
+  "enhanced_files": 8,
+  "total_files": 8,
+  "extraction_stats": {
+    "tables": 1,
+    "cross_references": 0,
+    "code_blocks": 8
+  },
+  "parser_version": "unified_v1.0.0"
+}

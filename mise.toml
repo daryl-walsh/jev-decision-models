@@ -1,0 +1,306 @@
+min_version = "2026.1.0"
+
+[tools]
+python = "3.13.16"
+uv = "0.13.6"
+bun ="1.4.4"
+fnox = "1.35.1"
+age = "latest"
+sops = "latest"
+"github:betterleaks/betterleaks" = "1.9.0"
+node = "24.20.0"
+lefthook = "2.2.2"
+gitleaks = "8.30.1"
+"pipx:commitizen" = "4.19.3"
+
+[plugins]
+fnox-env = "https://github.com/jdx/mise-env-fnox"
+
+[settings]
+# Auto-activate the .venv that `uv sync` creates, so `python`, `pytest`,
+# `langgraph` etc. resolve to the project environment whenever you cd in.
+python.uv_venv_auto = true
+# Where mise's built-in SOPS decryptor finds the age private key. This MUST be a
+# setting (not an [env] var): mise needs the key path BEFORE it resolves [env] to
+# decrypt _.file below. Path is outside the repo; the key is never committed.
+sops.age_key_file = "/home/daryl/.config/sops/age/keys.txt"
+
+[env]
+_.fnox-env = { tools = true }
+SOPS_AGE_KEY_FILE = "/home/daryl/.config/sops/age/keys.txt"
+# Create/activate .venv (mise uses uv to create it when uv is installed).
+_.python.venv = { path = "{{config_root}}/.venv", create = true }
+# Secrets live in .env (git-ignored). Copy .env.example -> .env and fill it in.
+_.file = { path = ".env", optional = true }
+
+# Non-secret defaults (override any of these in .env).
+PROJECT_ROOT = "{{config_root}}"
+MODEL_DIR= '/home/daryl/hf_models'
+
+# Keep provider selection in mise.local.toml or .env so a clean clone uses echo.
+
+[tasks.init]
+description = "Turn this template into a new project: mise run init <package_name>"
+usage = 'arg "<package_name>" help="New snake_case import name"'
+run = [
+  'bash scripts/rename.sh "${usage_package_name?}"',
+  "git init -q",
+  "mise run setup",
+]
+
+[tasks.setup]
+description = "Install deps and git hooks"
+run = [
+  "uv sync --all-groups",
+  "uv run prek install --install-hooks",
+]
+
+[tasks."secrets:init"]
+description = "Create your age key (if needed) and add it as an fnox recipient"
+run = "bash scripts/secrets-init.sh"
+
+# ------------------------------------------------------------- dev loop
+
+[tasks.fmt]
+description = "Format Python"
+run = "uv run --locked ruff format ."
+
+[tasks."fmt:check"]
+description = "Check Python formatting"
+run = "uv run --locked ruff format --check ."
+
+[tasks.lint]
+description = "Lint Python"
+run = "uv run --locked ruff check ."
+
+[tasks."lint:fix"]
+description = "Fix safe Python lint findings"
+run = "uv run --locked ruff check --fix ."
+
+[tasks.typecheck]
+description = "Type check with pyright strict using the setup-provisioned runtime"
+run = "uv run --locked pyright --warnings"
+
+[tasks.test]
+description = "Run tests with coverage (skips slow/gpu/integration)"
+run = "uv run --locked pytest --cov=src --cov=scripts -m 'not slow and not gpu and not integration'"
+
+[tasks."test:all"]
+description = "Run every test, with secrets loaded for integration tests"
+run = "fnox exec -- uv run --locked pytest --cov=src --cov=scripts"
+
+[tasks.run]
+description = "Print the package name and version (no secrets required)"
+run = "uv run --locked python -m python_starter"
+
+[tasks."secrets:exec"]
+description = "Run any tool/editor with secrets: mise run secrets:exec -- <command>"
+run = "fnox exec --"
+
+# ------------------------------------------------------------- security
+
+[tasks.audit]
+description = "Check dependencies for known CVEs (OSV)"
+run = "osv-scanner scan source --lockfile uv.lock --no-resolve"
+
+[tasks."secrets:scan"]
+description = "Scan the full git history for leaked secrets"
+run = "betterleaks git . --redact --verbose"
+
+[tasks."secrets:check"]
+description = "Reject plaintext fnox entries without needing a private key"
+run = "uv run python scripts/check_secrets.py"
+
+[tasks."lock:check"]
+description = "Fail if uv.lock is out of date with pyproject.toml"
+run = "uv lock --check"
+
+# ------------------------------------------------------------ the gates
+
+[tasks.check]
+description = "Everything CI runs. Agents: run this before saying you're done."
+# Sequential commands stop at the first failure; never cache security gates.
+run = [
+  "mise run fmt:check",
+  "mise run lint",
+  "mise run typecheck",
+  "mise run test",
+  "mise run lock:check",
+  "mise run audit",
+  "mise run secrets:scan",
+  "mise run secrets:check",
+]
+
+[tasks.ci]
+description = "CI entry point: frozen install, then the full check"
+run = [
+  "uv sync --locked --all-groups",
+  "mise run check",
+]
+
+[tasks.hooks]
+description = "Run every git hook against every file"
+run = "uv run prek run --all-files"
+
+# -------------------------------------------------------------- release
+
+[tasks.commit]
+description = "Guided Conventional Commit"
+run = "uv run cz commit"
+
+[tasks.bump]
+description = "Bump version from commits, update CHANGELOG, tag"
+run = "uv run cz bump"
+
+[tasks.build]
+description = "Build sdist and wheel into dist/"
+run = "uv build"
+
+[tasks.clean]
+description = "Remove build, cache and coverage artifacts"
+run = "rm -rf dist build .pytest_cache .ruff_cache .coverage htmlcov"
+
+
+
+[tasks.llama-serve]
+description = "Run a local LLaMA model server (requires LLaMA weights in ~/.cache/llama)"
+run = '''
+      gllama-server \
+        -m "$MODEL_DIR/Llama-3.1-8B-Instruct-Q5_K_M/Meta-Llama-3.1-8B-Instruct-Q5_K_M.gguf" \
+        --port 8080 \
+        -ngl 99 \
+        --ctx-size 65536 \
+        --flash-attn on \
+        --cache-type-k q8_0 \
+        --cache-type-v q8_0 \
+        --parallel 1 \
+        --jinja \
+        --alias llama-3.1-8b
+'''
+
+
+[tasks.qwen-serve]
+description = "Serve qwen3.5-0.8b-bf16-gguf model on port 8080"
+run='''
+  gllama-server \
+    -m $MODEL_DIR/Qwen3.5-0.8B-GGUF/Qwen3.5-0.8B-BF16.gguf \
+    --alias qwen3.5-0.8b-bf16 \
+    --jinja \
+    --reasoning off \
+    -c 16384 --parallel 1 -ngl 999 \
+    --host 127.0.0.1 --port 8888
+  '''
+
+
+
+
+# [tasks.setup]
+# description = "Install the locked dependencies and Git hooks"
+# run = ["bun install --frozen-lockfile", "lefthook install"]
+
+# [tasks.typecheck]
+# description = "Type-check all TypeScript files with native TypeScript 7"
+# run = "node ./node_modules/@typescript/native/bin/tsc --noEmit"
+
+# [tasks.lint]
+# description = "Lint source and tests with the TypeScript 6 API"
+# run = "mise run lint:files -- ."
+
+# [tasks."lint:files"]
+# description = "Lint the supplied paths (used by lint and staged checks)"
+# run = "node ./node_modules/eslint/bin/eslint.js --no-warn-ignored"
+
+# [tasks.fmt]
+# description = "Format supported source, configuration, and documentation files"
+# run = "node ./node_modules/prettier/bin/prettier.cjs --write . --ignore-unknown"
+
+# [tasks."fmt:check"]
+# description = "Check formatting without rewriting files"
+# run = "mise run fmt:files -- ."
+
+# [tasks."fmt:files"]
+# description = "Check formatting of the supplied paths without rewriting"
+# run = "node ./node_modules/prettier/bin/prettier.cjs --check --ignore-unknown"
+
+# [tasks."staged:check"]
+# description = "Check staged formatting, lint, and encrypted fnox values in an index snapshot"
+# run = "bash scripts/staged-check.sh"
+
+# [tasks.secrets]
+# description = "Scan all Git history and the tracked working tree for secrets"
+# run = "bash scripts/secrets-scan.sh"
+
+# [tasks."secrets:staged"]
+# description = "Scan staged changes for secrets"
+# run = "gitleaks git --pre-commit --staged --config .gitleaks.toml --redact --no-banner"
+
+# [tasks.commit]
+# description = "Create a guided Conventional Commit"
+# raw = true
+# run = "cz commit"
+
+# [tasks."commit:check"]
+# description = "Validate a commit message file"
+# run = "cz check --commit-msg-file"
+
+# [tasks.bump]
+# description = "Bump package version, changelog, and tag (humans / release workflow only)"
+# raw = true
+# run = "cz bump"
+
+# [tasks.check]
+# description = "Check formatting, lint, types, secret leaks, encrypted secrets, and offline tests"
+# # Finish static checks before tests so an early failure cannot cancel scratch cleanup.
+# depends = ["fmt:check", "lint", "typecheck", "secrets", "secrets:check"]
+# run = "mise run test"
+
+# [tasks.test]
+# description = "Run the offline Node tests in a temporary working directory"
+# env = { OPENAI_MODEL = "", OPENAI_API_KEY = "", LLAMA_BASE_URL = "", LLAMA_API_KEY = "" }
+# run = '''
+# set -eu
+# test_dir=$(mktemp -d)
+# trap 'rm -rf "$test_dir"' EXIT
+# cd "$test_dir"
+# export CHAT_DATA_DIR="$test_dir/data"
+# node --test "$MISE_CONFIG_ROOT"/test/*.test.ts
+# '''
+
+# [tasks.chat]
+# description = "Start a fresh chat (local echo unless a provider is configured)"
+# raw = true
+# run = "node --env-file-if-exists=.env chat.ts"
+
+# [tasks."chat:llama"]
+# description = "Start a fresh chat with the local llama.cpp server"
+# raw = true
+# env = { LLAMA_BASE_URL = "http://127.0.0.1:8080/v1" }
+# run = "node --env-file-if-exists=.env chat.ts"
+
+# [tasks."chat:resume"]
+# description = "Reopen a saved chat and recover interrupted work"
+# raw = true
+# run = "node --env-file-if-exists=.env chat-resume.ts"
+
+# [tasks."chat:resume:llama"]
+# description = "Reopen a saved chat with the local llama.cpp server"
+# raw = true
+# env = { LLAMA_BASE_URL = "http://127.0.0.1:8080/v1" }
+# run = "node --env-file-if-exists=.env chat-resume.ts"
+
+# [tasks."secrets:init"]
+# description = "Create an external age identity and register its public recipient (human only)"
+# run = "bash scripts/secrets-init.sh"
+
+# [tasks."secrets:import"]
+# description = "Import the approved gopass inventory as age ciphertext (human only)"
+# run = "bash scripts/secrets-import.sh"
+
+# [tasks."secrets:check"]
+# description = "Reject plaintext or unsupported fnox configuration without decryption"
+# run = "bash scripts/secrets-check.sh"
+
+# [tasks."secrets:exec"]
+# description = "Run a command with secrets: mise run secrets:exec -- <command> (human only)"
+# raw = true
+# run = "fnox exec --"

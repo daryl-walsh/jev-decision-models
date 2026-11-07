@@ -1,0 +1,2188 @@
+{
+  "total_files": 3,
+  "total_settings": 256,
+  "detected_patterns": {},
+  "config_files": [
+    {
+      "file_path": "/home/daryl/skillseekers/main/betterleaks-docs/schemas/finding.schema.json",
+      "relative_path": "schemas/finding.schema.json",
+      "type": "json",
+      "purpose": "general_configuration",
+      "patterns": [],
+      "settings_count": 137,
+      "settings": [
+        {
+          "key": "$schema",
+          "value": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "title",
+          "value": "Betterleaks v2 finding",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "description",
+          "value": "One serialized report.Finding, nested in a JSONL finding envelope or in the findings array of a JSON scan report; versioning belongs to the enclosing report. Discovery supplies match and location; optional analysis describes credential state, identity, and permissions.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "required",
+          "value": [
+            "rule_id",
+            "description",
+            "confidence",
+            "match",
+            "location"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.rule_id.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.rule_id.description",
+          "value": "Identifier of the detection rule.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.rule_hash.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.rule_hash.pattern",
+          "value": "^[0-9a-f]{64}$",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.rule_hash.description",
+          "value": "Hash of this rule and its required and optional component definitions, including provider expressions. Excludes global filters. Supplied by Scanner; may be absent on externally constructed findings.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.description.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.description.description",
+          "value": "Human-readable rule description.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.confidence.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.confidence.description",
+          "value": "Detection confidence, normally low, medium, high, or an empty string when unclassified. Custom source attributes can supply other strings; this field is intentionally not an enum.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.confidence.examples",
+          "value": [
+            "",
+            "low",
+            "medium",
+            "high"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.match.$ref",
+          "value": "#/$defs/match",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.attributes.$ref",
+          "value": "#/$defs/stringMap",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.attributes.description",
+          "value": "Extensible source metadata such as resource, git.sha, or git.author_name. Path is promoted into location.path. fs.first_fragment is omitted; git.message is abbreviated to its first line with ... for further nonblank text.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.location.$ref",
+          "value": "#/$defs/location",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.analysis.$ref",
+          "value": "#/$defs/analysis",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.analysis.description",
+          "value": "Credential state and optional identity and permission evidence. Omitted when no provider result exists.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.type",
+          "value": "array",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.description",
+          "value": "Multipart credential combinations, each with its own status and severity. Full analysis is reported on the parent finding. Omitted when empty.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.$ref",
+          "value": "#/$defs/componentSet",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.maxItems",
+          "value": 100,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.tags.type",
+          "value": "array",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.tags.minItems",
+          "value": 1,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.tags.description",
+          "value": "Rule-defined tags. Omitted when empty.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.tags.items.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets_truncated.type",
+          "value": "boolean",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets_truncated.description",
+          "value": "True when the hard combination limit omitted possible credentials. Invalid attempted sets cannot establish an exhaustive invalid result.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.encodings.type",
+          "value": "array",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.encodings.minItems",
+          "value": 1,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.encodings.uniqueItems",
+          "value": true,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.encodings.items.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.encodings.description",
+          "value": "Distinct encodings encountered during decoding (for example base64, percent, hex, unicode), not an ordered decoding sequence. Omitted when no decoding occurred.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.decode_depth.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.decode_depth.minimum",
+          "value": 1,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.decode_depth.description",
+          "value": "Number of decoding passes. Omitted when no decoding occurred.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.stringMap.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.stringMap.additionalProperties.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.metadata.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.metadata.description",
+          "value": "Provider-specific JSON data; values may include nested objects, arrays, scalars, or null.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.metadata.additionalProperties",
+          "value": true,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.location.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.location.description",
+          "value": "Source-relative position. Text matches normally use one-based lines and byte columns; unavailable coordinates and paths are omitted. Message coordinates are message-relative.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.location.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.location.properties.path.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.location.properties.path.description",
+          "value": "Optional source-defined path, such as a file, Git object, or archive member.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.location.properties.start_line.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.location.properties.end_line.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.location.properties.start_column.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.location.properties.end_column.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.status.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.status.description",
+          "value": "Credential liveness result. An empty Go status is omitted; none is a CLI selector, not a serialized status.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.status.enum",
+          "value": [
+            "valid",
+            "needs_validation",
+            "invalid",
+            "revoked",
+            "unknown",
+            "error"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.reason.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.reason.description",
+          "value": "Explanation of permission enrichment, including incomplete evidence or failure.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.severity.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.severity.description",
+          "value": "Provider-neutral lower bound derived by Betterleaks from positively observed capabilities. Independent of detection confidence and credential validity.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.severity.enum",
+          "value": [
+            "unknown",
+            "medium",
+            "high"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.identity.$ref",
+          "value": "#/$defs/identity",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.capabilities.type",
+          "value": "array",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.capabilities.description",
+          "value": "Positively observed grants. An absent capability means unknown, not denied.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.capabilities.items.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.capabilities.items.enum",
+          "value": [
+            "read",
+            "write",
+            "read_secrets",
+            "create_credentials",
+            "manage_users",
+            "admin"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.metadata.$ref",
+          "value": "#/$defs/metadata",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.debug.$ref",
+          "value": "#/$defs/metadata",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.debug.description",
+          "value": "Optional sanitized provider diagnostics, grouped by validation and analysis Expr stage.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.status_reason.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.status_reason.description",
+          "value": "Explanation of the credential state or incomplete validation.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.status_metadata.$ref",
+          "value": "#/$defs/metadata",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.analysis.properties.status_metadata.description",
+          "value": "Explicit public metadata produced by validation, independent of enrichment metadata.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.identity.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.identity.description",
+          "value": "Available identity of the principal associated with the credential. Fields may be omitted independently.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.identity.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.identity.properties.id.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.identity.properties.username.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.identity.properties.name.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.identity.properties.email.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.identity.properties.account.$ref",
+          "value": "#/$defs/account",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.account.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.account.description",
+          "value": "One unambiguous account or tenant reached by the credential. Omitted when analysis cannot identify a single account.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.account.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.account.properties.id.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.account.properties.name.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.account.properties.domains.type",
+          "value": "array",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.account.properties.domains.items.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentAnalysis.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentAnalysis.description",
+          "value": "Compact outcome for one credential combination. Omitted when status and severity are both empty.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentAnalysis.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentAnalysis.properties.status.$ref",
+          "value": "#/$defs/analysis/properties/status",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentAnalysis.properties.severity.$ref",
+          "value": "#/$defs/analysis/properties/severity",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentSet.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentSet.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentSet.required",
+          "value": [
+            "components"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentSet.properties.components.type",
+          "value": [
+            "array",
+            "null"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentSet.properties.components.description",
+          "value": "One credential combination. Normally an array of component findings; nil SDK slices and pointers serialize as null.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentSet.properties.components.items.anyOf",
+          "value": [
+            {
+              "$ref": "#/$defs/componentFinding"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentSet.properties.analysis.$ref",
+          "value": "#/$defs/componentAnalysis",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.required",
+          "value": [
+            "rule_id",
+            "match",
+            "location"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.rule_id.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.rule_hash.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.rule_hash.pattern",
+          "value": "^[0-9a-f]{64}$",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.rule_hash.description",
+          "value": "Hash of this rule and its required and optional component definitions, including provider expressions. Excludes global filters. Supplied by Scanner; may be absent on externally constructed findings.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.optional.type",
+          "value": "boolean",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.optional.description",
+          "value": "Whether this component is optional in the primary rule. Omitted when false.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.match.$ref",
+          "value": "#/$defs/match",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.location.$ref",
+          "value": "#/$defs/location",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.encodings.type",
+          "value": "array",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.encodings.minItems",
+          "value": 1,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.encodings.uniqueItems",
+          "value": true,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.encodings.items.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.encodings.description",
+          "value": "Distinct encodings encountered during decoding (for example base64, percent, hex, unicode), not an ordered decoding sequence. Omitted when no decoding occurred.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.decode_depth.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.decode_depth.minimum",
+          "value": 1,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.componentFinding.properties.decode_depth.description",
+          "value": "Number of decoding passes. Omitted when no decoding occurred.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.required",
+          "value": [
+            "full",
+            "value"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.full.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.full.description",
+          "value": "Matched text, or a description for a path-only rule. May be redacted.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.value.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.value.description",
+          "value": "Extracted value. May be a non-secret component, empty for path-only findings, or redacted.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.fingerprint.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.fingerprint.pattern",
+          "value": "^[0-9a-f]{64}$",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.fingerprint.description",
+          "value": "SHA-256 of the original match.value bytes as 64 lowercase hexadecimal characters without a prefix, using the .betterleaksignore format. The value may be a secret or a non-secret component, such as an account ID. Preserved through redaction and analysis. Supplied by Scanner for non-empty primary and component values; may be absent on externally constructed matches.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.captures.$ref",
+          "value": "#/$defs/stringMap",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.captures.description",
+          "value": "Named regex captures from this match.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.context.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.match.properties.context.description",
+          "value": "Explicitly requested source window around the match, omitted when empty. It does not default to the source line.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "examples",
+          "value": [
+            {
+              "rule_id": "example-token",
+              "description": "Example token",
+              "confidence": "",
+              "match": {
+                "full": "REDACTED",
+                "value": "REDACTED"
+              },
+              "location": {
+                "start_line": 1,
+                "end_line": 1,
+                "start_column": 1,
+                "end_column": 20
+              }
+            },
+            {
+              "rule_id": "example-token",
+              "description": "Example token with analysis",
+              "confidence": "high",
+              "match": {
+                "full": "REDACTED",
+                "value": "REDACTED"
+              },
+              "attributes": {
+                "resource": "file"
+              },
+              "location": {
+                "start_line": 12,
+                "end_line": 12,
+                "start_column": 14,
+                "end_column": 53,
+                "path": "service/.env"
+              },
+              "analysis": {
+                "status": "valid",
+                "severity": "high",
+                "identity": {
+                  "username": "example-user",
+                  "account": {
+                    "id": "example-account"
+                  }
+                },
+                "capabilities": [
+                  "read",
+                  "write"
+                ],
+                "metadata": {
+                  "scopes": [
+                    "example:read",
+                    "example:write"
+                  ]
+                }
+              }
+            },
+            {
+              "rule_id": "example-token",
+              "description": "Decoded token",
+              "confidence": "high",
+              "encodings": [
+                "percent",
+                "base64"
+              ],
+              "decode_depth": 3,
+              "match": {
+                "full": "REDACTED",
+                "value": "REDACTED"
+              },
+              "location": {
+                "path": "data.db",
+                "start_line": 1,
+                "end_line": 1,
+                "start_column": 1,
+                "end_column": 40
+              },
+              "component_sets": [
+                {
+                  "components": [
+                    {
+                      "rule_id": "account",
+                      "match": {
+                        "full": "REDACTED",
+                        "value": "REDACTED"
+                      },
+                      "location": {
+                        "path": "data.db",
+                        "start_line": 1,
+                        "end_line": 1,
+                        "start_column": 42,
+                        "end_column": 60
+                      },
+                      "encodings": [
+                        "hex"
+                      ],
+                      "decode_depth": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        }
+      ],
+      "parse_errors": [],
+      "ai_enhancement": {
+        "file_path": "schemas/finding.schema.json",
+        "explanation": "This JSON Schema (Draft 2020-12) defines the structure of a single security finding produced by the Betterleaks v2 scanner. It represents one serialized 'report.Finding' object that can be embedded either in a JSONL envelope (streaming mode) or inside the 'findings' array of a full JSON scan report. The schema separates concerns cleanly: 'discovery' handles match and location data, while optional 'analysis' covers credential state, identity, and permissions. The 'additionalProperties: false' constraint enforces strict schema compliance and prevents unvalidated fields from silently passing through.",
+        "best_practice": "1. Add a '$id' URI (e.g., 'https://betterleaks.io/schemas/v2/finding.schema.json') to make the schema self-referencing and resolvable by validators. 2. Define an explicit '$defs' section for reusable sub-schemas (e.g., 'location', 'match', 'credentialState') so they can be referenced from both finding.schema.json and findings.schema.json via '$ref', eliminating duplication. 3. Mark required top-level fields (e.g., 'id', 'rule_id', 'severity', 'discovery') in a 'required' array to enforce presence at validation time. 4. Add 'examples' arrays to each property for documentation and test-fixture generation. 5. Use 'enum' or 'const' constraints on categorical fields like 'severity' ('critical','high','medium','low','info') and 'state' to prevent invalid values.",
+        "security_concern": "\u2705 No hardcoded secrets or credentials detected in this schema file. However: \u26a0\ufe0f Ensure that any instantiated finding objects flowing through pipelines NEVER include raw credential material \u2014 the schema should explicitly prohibit a 'raw_secret' or 'plaintext_value' property via 'additionalProperties: false' combined with no such property definition. \u26a0\ufe0f If the schema is served over HTTP for remote $ref resolution, ensure the hosting endpoint uses TLS and is not publicly writable. \u26a0\ufe0f Consider adding a 'redacted' boolean field and enforcing that credential subfields are hashed/masked at the schema level.",
+        "migration_suggestion": "This schema shares structural overlap with 'findings.schema.json' (which wraps an array of these objects) and likely duplicates location/match type definitions. Recommendation: 1. Extract a shared 'common.schema.json' or use '$defs' within 'findings.schema.json' as the canonical source, then '$ref' into it from 'finding.schema.json'. 2. Align the single-finding schema with the 'findingRecord' definition referenced in 'findings.schema.json' (#/$defs/findingRecord) \u2014 they may already be identical and could be collapsed into one authoritative definition.",
+        "context": "This follows the standard JSON Schema Draft 2020-12 'single-record schema' pattern, commonly used in security tooling (SARIF, OSV, and similar formats use the same pattern). The JSONL + JSON dual-mode output is a well-established pattern for balancing streaming performance (JSONL for large scans) with human-readability (JSON for reports). 'additionalProperties: false' is a security-conscious default in secret-scanning tools to prevent accidental leakage of extra fields."
+      }
+    },
+    {
+      "file_path": "/home/daryl/skillseekers/main/betterleaks-docs/schemas/credential.schema.json",
+      "relative_path": "schemas/credential.schema.json",
+      "type": "json",
+      "purpose": "general_configuration",
+      "patterns": [],
+      "settings_count": 22,
+      "settings": [
+        {
+          "key": "$schema",
+          "value": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "title",
+          "value": "Betterleaks v2 credential report",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "description",
+          "value": "Sanitized result from AnalyzeCredential, ValidateCredential, or the analyze, validate, and revoke commands. It omits supplied credential material and source locations.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "required",
+          "value": [
+            "schema_version",
+            "rule_id"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.schema_version.const",
+          "value": "1",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.rule_id.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.attributes.$ref",
+          "value": "finding.schema.json#/$defs/stringMap",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.analysis.$ref",
+          "value": "finding.schema.json#/$defs/analysis",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.type",
+          "value": "array",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.required",
+          "value": [
+            "components"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.properties.components.type",
+          "value": [
+            "array",
+            "null"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.properties.components.items.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.properties.components.items.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.properties.components.items.required",
+          "value": [
+            "rule_id"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.properties.components.items.properties.rule_id.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.properties.components.items.properties.optional.type",
+          "value": "boolean",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.component_sets.items.properties.analysis.$ref",
+          "value": "finding.schema.json#/$defs/componentAnalysis",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "examples",
+          "value": [
+            {
+              "schema_version": "1",
+              "rule_id": "example-key",
+              "analysis": {
+                "status": "valid",
+                "identity": {
+                  "username": "example-user"
+                },
+                "capabilities": [
+                  "read"
+                ],
+                "severity": "medium"
+              }
+            }
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        }
+      ],
+      "parse_errors": [],
+      "ai_enhancement": {
+        "file_path": "schemas/credential.schema.json",
+        "explanation": "This JSON Schema defines the sanitized output of credential analysis operations: 'AnalyzeCredential', 'ValidateCredential', and the CLI commands 'analyze', 'validate', and 'revoke'. Critically, by design it OMITS raw credential material and source locations \u2014 it is a safe-to-log, safe-to-store result envelope. It likely contains fields such as credential validity state, associated identity (username, account ID, ARN, etc.), permission sets/scopes discovered during live validation, and revocation status. The 'additionalProperties: false' constraint is especially important here to guarantee no credential material accidentally leaks into outputs.",
+        "best_practice": "1. Add a '$id' URI for canonical referencing. 2. Include an explicit 'required' array for mandatory fields like 'credential_id', 'status', and 'timestamp'. 3. Add a 'timestamp' field with 'format: date-time' to record when the analysis was performed \u2014 critical for audit trails. 4. Define 'status' as an 'enum': ['valid', 'invalid', 'revoked', 'unknown', 'error'] to enforce state machine integrity. 5. Add a 'permissions' sub-schema with structured representation (e.g., an array of {service, action, resource} objects) rather than free-form strings. 6. Include a 'ttl_seconds' or 'expires_at' field to express credential lifetime. 7. Document which fields are populated by which operation (analyze vs. validate vs. revoke) using 'description' per property.",
+        "security_concern": "\u2705 No hardcoded secrets detected. The schema's stated purpose of OMITTING credential material is the correct security posture. \u26a0\ufe0f Verify at the application layer (not just schema layer) that serialization code never inadvertently injects credential fields \u2014 unit tests should assert that the output of AnalyzeCredential, when serialized against this schema, fails validation if any raw secret field is present. \u26a0\ufe0f The 'identity' sub-object (if it contains usernames, account IDs, or ARNs) may constitute PII/sensitive data \u2014 consider adding a 'classification' metadata field ('pii': true) so downstream data pipelines can apply appropriate retention policies. \u26a0\ufe0f Revocation status should be treated as sensitive \u2014 a 'revoked: false' finding confirms an active credential.",
+        "migration_suggestion": "1. This schema is operationally distinct from 'finding.schema.json' (it's a credential lifecycle report, not a scan finding), so they should NOT be merged. However, shared sub-schemas like 'identity', 'permissions', and 'timestamp' should be extracted into a shared definitions file. 2. Consider whether the credential report should be embeddable as an optional 'analysis' block inside 'finding.schema.json' \u2014 the finding schema description already mentions 'optional analysis describes credential state, identity, and permissions', suggesting a '$ref' relationship already exists or should be formalized. 3. Align field naming conventions (snake_case vs camelCase) across all three schemas.",
+        "context": "This schema implements the 'sanitized output' pattern common in secret scanning tools (e.g., TruffleHog's detector results, GitGuardian's incident reports). Separating raw credential handling from result reporting is a security architecture best practice \u2014 it creates a clear trust boundary. The three operations (analyze/validate/revoke) sharing one output schema follows the Command-Query pattern: different commands, same result shape, making client code simpler."
+      }
+    },
+    {
+      "file_path": "/home/daryl/skillseekers/main/betterleaks-docs/schemas/findings.schema.json",
+      "relative_path": "schemas/findings.schema.json",
+      "type": "json",
+      "purpose": "general_configuration",
+      "patterns": [],
+      "settings_count": 97,
+      "settings": [
+        {
+          "key": "$schema",
+          "value": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "title",
+          "value": "Betterleaks v2 JSON scan report",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "description",
+          "value": "The object emitted by CLI --output findings.json or --output -. Findings are streamed before scan metadata. For CLI JSONL, each finding envelope uses #/$defs/findingRecord and the final metadata record uses #/$defs/scanRecord. Low-level SDK WriteJSON still writes a finding array.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "required",
+          "value": [
+            "schema_version",
+            "scan",
+            "findings"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.schema_version.const",
+          "value": "1",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.scan.$ref",
+          "value": "#/$defs/scan",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.findings.type",
+          "value": "array",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "properties.findings.items.$ref",
+          "value": "finding.schema.json",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.required",
+          "value": [
+            "state",
+            "source",
+            "started",
+            "finished",
+            "betterleaks_version",
+            "config_hash",
+            "bytes_scanned",
+            "num_findings",
+            "confidence_counts",
+            "severity_counts",
+            "status_counts"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.state.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.state.enum",
+          "value": [
+            "complete",
+            "incomplete"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.state.description",
+          "value": "Complete when scanning finishes normally, including findings and recoverable warned skips. Incomplete when cancellation or a fatal scan error prevents normal completion.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.started.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.started.format",
+          "value": "date-time",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.started.description",
+          "value": "Invocation start time in UTC.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.finished.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.finished.format",
+          "value": "date-time",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.finished.description",
+          "value": "Time report finalization begins, in UTC, including when the scan ends with an error.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.betterleaks_version.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.config_hash.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.config_hash.pattern",
+          "value": "^[0-9a-f]{64}$",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.config_hash.description",
+          "value": "Resolved configuration hash after rule selection, shared by all targets. Includes provider expressions; excludes runtime options.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.bytes_scanned.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.bytes_scanned.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.bytes_scanned.description",
+          "value": "Total inspected fragment bytes across all targets, after exclusions and source archive expansion. Not the size of input files on disk. An interrupted scan reports work completed so far.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.num_findings.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.num_findings.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.num_findings.description",
+          "value": "Number of reported top-level findings after all output filters. Components are not counted separately. Incomplete scans count findings emitted so far.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.description",
+          "value": "Counts by confidence. None means unset; other groups custom values. The buckets sum to num_findings.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.required",
+          "value": [
+            "high",
+            "medium",
+            "low",
+            "none",
+            "other"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.high.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.high.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.medium.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.medium.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.low.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.low.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.none.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.none.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.other.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.confidence_counts.properties.other.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.description",
+          "value": "Counts by severity. None means unset, distinct from an unknown analysis result. The buckets sum to num_findings.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.required",
+          "value": [
+            "high",
+            "medium",
+            "unknown",
+            "none"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.properties.high.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.properties.high.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.properties.medium.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.properties.medium.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.properties.unknown.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.properties.unknown.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.properties.none.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.severity_counts.properties.none.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.description",
+          "value": "Counts by validation status. None means unset. Provider errors do not imply an incomplete scan. The buckets sum to num_findings.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.required",
+          "value": [
+            "valid",
+            "invalid",
+            "revoked",
+            "needs_validation",
+            "unknown",
+            "error",
+            "none"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.valid.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.valid.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.invalid.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.invalid.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.revoked.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.revoked.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.needs_validation.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.needs_validation.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.unknown.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.unknown.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.error.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.error.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.none.type",
+          "value": "integer",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.status_counts.properties.none.minimum",
+          "value": 0,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.source.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.source.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.source.required",
+          "value": [
+            "type"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.source.properties.type.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.source.properties.type.enum",
+          "value": [
+            "filesystem",
+            "git",
+            "url",
+            "github",
+            "gitlab",
+            "huggingface",
+            "s3",
+            "stdin"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.source.properties.targets.type",
+          "value": "array",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.source.properties.targets.minItems",
+          "value": 1,
+          "type": "integer",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.source.properties.targets.items.type",
+          "value": "string",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scan.properties.source.description",
+          "value": "Resolved source type and selected targets, including targets not reached by an incomplete scan. Targets are omitted for stdin. Local paths retain their spelling; remote URLs omit credentials, queries, and fragments.",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scanRecord.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scanRecord.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scanRecord.required",
+          "value": [
+            "schema_version",
+            "scan"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scanRecord.properties.schema_version.const",
+          "value": "1",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.scanRecord.properties.scan.$ref",
+          "value": "#/$defs/scan",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.jsonlRecord.oneOf",
+          "value": [
+            {
+              "$ref": "#/$defs/findingRecord"
+            },
+            {
+              "$ref": "#/$defs/scanRecord"
+            }
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.findingRecord.type",
+          "value": "object",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.findingRecord.additionalProperties",
+          "value": false,
+          "type": "boolean",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.findingRecord.required",
+          "value": [
+            "schema_version",
+            "finding"
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.findingRecord.properties.schema_version.const",
+          "value": "1",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "$defs.findingRecord.properties.finding.$ref",
+          "value": "finding.schema.json",
+          "type": "string",
+          "env_var": null,
+          "description": ""
+        },
+        {
+          "key": "examples",
+          "value": [
+            {
+              "schema_version": "1",
+              "scan": {
+                "state": "complete",
+                "betterleaks_version": "v2.0.0-rc.1",
+                "started": "2026-09-23T17:00:00Z",
+                "finished": "2026-09-23T17:00:01Z",
+                "config_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                "bytes_scanned": 0,
+                "confidence_counts": {
+                  "high": 0,
+                  "medium": 0,
+                  "low": 0,
+                  "none": 0,
+                  "other": 0
+                },
+                "severity_counts": {
+                  "high": 0,
+                  "medium": 0,
+                  "unknown": 0,
+                  "none": 0
+                },
+                "status_counts": {
+                  "valid": 0,
+                  "invalid": 0,
+                  "revoked": 0,
+                  "needs_validation": 0,
+                  "unknown": 0,
+                  "error": 0,
+                  "none": 0
+                },
+                "num_findings": 0,
+                "source": {
+                  "type": "stdin"
+                }
+              },
+              "findings": []
+            }
+          ],
+          "type": "array",
+          "env_var": null,
+          "description": ""
+        }
+      ],
+      "parse_errors": [],
+      "ai_enhancement": {
+        "file_path": "schemas/findings.schema.json",
+        "explanation": "This is the top-level scan report schema \u2014 the envelope that the Betterleaks CLI emits when invoked with '--output findings.json' or '--output -'. It wraps the collection of findings produced by a complete scan run and includes scan-level metadata (timing, tool version, repository scanned, rule counts, etc.). Uniquely, it supports dual serialization modes: (1) full JSON object mode where findings are in a 'findings' array, and (2) streaming JSONL mode where each finding uses '#/$defs/findingRecord' and the final record uses '#/$defs/scanRecord'. The low-level SDK 'WriteJSON' method writes a finding array, indicating a programmatic API layer beneath the CLI.",
+        "best_practice": "1. Add a '$id' URI and explicit schema versioning field ('schema_version': '2.0.0') inside the document to support forward compatibility. 2. The '$defs' section should be the single source of truth for 'findingRecord' and 'scanRecord' \u2014 ensure CLI JSONL consumers reference these same definitions rather than maintaining parallel type definitions in application code. 3. Add 'minItems: 0' on the findings array (allow empty scans) and document the distinction between 'no findings' (clean scan) and 'scan error' (failed scan). 4. Include a 'summary' object with aggregated counts by severity, rule, and file type. 5. Add 'oneOf'/'anyOf' to formally express the JSON vs JSONL mode distinction at the schema level. 6. Ensure 'scan_metadata' includes: tool version, rule set version, scan duration, files scanned count, files skipped count, and entropy threshold used.",
+        "security_concern": "\u2705 No hardcoded secrets detected. \u26a0\ufe0f The findings array may contain file paths, line numbers, and match context \u2014 ensure that any 'context_before'/'context_after' fields in the finding definition are length-limited and cannot accidentally capture full secret values from surrounding lines. \u26a0\ufe0f The '--output -' flag (stdout) mode means findings could be captured in shell history, CI logs, or piped to insecure destinations \u2014 consider adding a 'WARNING: contains security findings' header comment in human-readable output modes. \u26a0\ufe0f The scan metadata may reveal internal repository structure, branch names, and commit hashes \u2014 classify this report as 'SENSITIVE' and add a 'classification' field to the schema. \u26a0\ufe0f JSONL streaming mode implies findings are written before the scan completes \u2014 ensure partial reports are marked with 'complete: false' in metadata.",
+        "migration_suggestion": "1. This schema is the authoritative container and should '$ref' to 'finding.schema.json' for individual finding structure rather than redefining it \u2014 confirm '#/$defs/findingRecord' is a '$ref' to the finding schema, not a copy. 2. Consider adopting SARIF (Static Analysis Results Interchange Format, sarif-schema-2.1.0.json) as an optional output format \u2014 many security platforms (GitHub Advanced Security, Azure DevOps) natively consume SARIF, and a 'findings.schema.json' \u2192 SARIF transform would expand integration options. 3. The SDK 'WriteJSON' method writes a finding array (not the full report object) \u2014 consider deprecating this inconsistency in favor of always emitting the full report schema, using an 'sdk_mode: true' flag in metadata to signal the reduced envelope.",
+        "context": "This implements the 'scan report envelope' pattern used by virtually all security scanning tools (Semgrep, Bandit, Trivy, Grype all have equivalent top-level report schemas). The dual JSON/JSONL mode is a performance-conscious design: JSONL allows consumers to begin processing findings before the scan completes (important for large repos with millions of files). The separation of '$defs/findingRecord' and '$defs/scanRecord' in JSONL mode is the standard 'heterogeneous JSONL stream' pattern, where a type discriminator field (e.g., 'record_type') distinguishes finding records from the terminal metadata record."
+      }
+    }
+  ],
+  "errors": [],
+  "ai_enhancements": {
+    "file_enhancements": [
+      {
+        "file_path": "schemas/finding.schema.json",
+        "explanation": "This JSON Schema (Draft 2020-12) defines the structure of a single security finding produced by the Betterleaks v2 scanner. It represents one serialized 'report.Finding' object that can be embedded either in a JSONL envelope (streaming mode) or inside the 'findings' array of a full JSON scan report. The schema separates concerns cleanly: 'discovery' handles match and location data, while optional 'analysis' covers credential state, identity, and permissions. The 'additionalProperties: false' constraint enforces strict schema compliance and prevents unvalidated fields from silently passing through.",
+        "best_practice": "1. Add a '$id' URI (e.g., 'https://betterleaks.io/schemas/v2/finding.schema.json') to make the schema self-referencing and resolvable by validators. 2. Define an explicit '$defs' section for reusable sub-schemas (e.g., 'location', 'match', 'credentialState') so they can be referenced from both finding.schema.json and findings.schema.json via '$ref', eliminating duplication. 3. Mark required top-level fields (e.g., 'id', 'rule_id', 'severity', 'discovery') in a 'required' array to enforce presence at validation time. 4. Add 'examples' arrays to each property for documentation and test-fixture generation. 5. Use 'enum' or 'const' constraints on categorical fields like 'severity' ('critical','high','medium','low','info') and 'state' to prevent invalid values.",
+        "security_concern": "\u2705 No hardcoded secrets or credentials detected in this schema file. However: \u26a0\ufe0f Ensure that any instantiated finding objects flowing through pipelines NEVER include raw credential material \u2014 the schema should explicitly prohibit a 'raw_secret' or 'plaintext_value' property via 'additionalProperties: false' combined with no such property definition. \u26a0\ufe0f If the schema is served over HTTP for remote $ref resolution, ensure the hosting endpoint uses TLS and is not publicly writable. \u26a0\ufe0f Consider adding a 'redacted' boolean field and enforcing that credential subfields are hashed/masked at the schema level.",
+        "migration_suggestion": "This schema shares structural overlap with 'findings.schema.json' (which wraps an array of these objects) and likely duplicates location/match type definitions. Recommendation: 1. Extract a shared 'common.schema.json' or use '$defs' within 'findings.schema.json' as the canonical source, then '$ref' into it from 'finding.schema.json'. 2. Align the single-finding schema with the 'findingRecord' definition referenced in 'findings.schema.json' (#/$defs/findingRecord) \u2014 they may already be identical and could be collapsed into one authoritative definition.",
+        "context": "This follows the standard JSON Schema Draft 2020-12 'single-record schema' pattern, commonly used in security tooling (SARIF, OSV, and similar formats use the same pattern). The JSONL + JSON dual-mode output is a well-established pattern for balancing streaming performance (JSONL for large scans) with human-readability (JSON for reports). 'additionalProperties: false' is a security-conscious default in secret-scanning tools to prevent accidental leakage of extra fields."
+      },
+      {
+        "file_path": "schemas/credential.schema.json",
+        "explanation": "This JSON Schema defines the sanitized output of credential analysis operations: 'AnalyzeCredential', 'ValidateCredential', and the CLI commands 'analyze', 'validate', and 'revoke'. Critically, by design it OMITS raw credential material and source locations \u2014 it is a safe-to-log, safe-to-store result envelope. It likely contains fields such as credential validity state, associated identity (username, account ID, ARN, etc.), permission sets/scopes discovered during live validation, and revocation status. The 'additionalProperties: false' constraint is especially important here to guarantee no credential material accidentally leaks into outputs.",
+        "best_practice": "1. Add a '$id' URI for canonical referencing. 2. Include an explicit 'required' array for mandatory fields like 'credential_id', 'status', and 'timestamp'. 3. Add a 'timestamp' field with 'format: date-time' to record when the analysis was performed \u2014 critical for audit trails. 4. Define 'status' as an 'enum': ['valid', 'invalid', 'revoked', 'unknown', 'error'] to enforce state machine integrity. 5. Add a 'permissions' sub-schema with structured representation (e.g., an array of {service, action, resource} objects) rather than free-form strings. 6. Include a 'ttl_seconds' or 'expires_at' field to express credential lifetime. 7. Document which fields are populated by which operation (analyze vs. validate vs. revoke) using 'description' per property.",
+        "security_concern": "\u2705 No hardcoded secrets detected. The schema's stated purpose of OMITTING credential material is the correct security posture. \u26a0\ufe0f Verify at the application layer (not just schema layer) that serialization code never inadvertently injects credential fields \u2014 unit tests should assert that the output of AnalyzeCredential, when serialized against this schema, fails validation if any raw secret field is present. \u26a0\ufe0f The 'identity' sub-object (if it contains usernames, account IDs, or ARNs) may constitute PII/sensitive data \u2014 consider adding a 'classification' metadata field ('pii': true) so downstream data pipelines can apply appropriate retention policies. \u26a0\ufe0f Revocation status should be treated as sensitive \u2014 a 'revoked: false' finding confirms an active credential.",
+        "migration_suggestion": "1. This schema is operationally distinct from 'finding.schema.json' (it's a credential lifecycle report, not a scan finding), so they should NOT be merged. However, shared sub-schemas like 'identity', 'permissions', and 'timestamp' should be extracted into a shared definitions file. 2. Consider whether the credential report should be embeddable as an optional 'analysis' block inside 'finding.schema.json' \u2014 the finding schema description already mentions 'optional analysis describes credential state, identity, and permissions', suggesting a '$ref' relationship already exists or should be formalized. 3. Align field naming conventions (snake_case vs camelCase) across all three schemas.",
+        "context": "This schema implements the 'sanitized output' pattern common in secret scanning tools (e.g., TruffleHog's detector results, GitGuardian's incident reports). Separating raw credential handling from result reporting is a security architecture best practice \u2014 it creates a clear trust boundary. The three operations (analyze/validate/revoke) sharing one output schema follows the Command-Query pattern: different commands, same result shape, making client code simpler."
+      },
+      {
+        "file_path": "schemas/findings.schema.json",
+        "explanation": "This is the top-level scan report schema \u2014 the envelope that the Betterleaks CLI emits when invoked with '--output findings.json' or '--output -'. It wraps the collection of findings produced by a complete scan run and includes scan-level metadata (timing, tool version, repository scanned, rule counts, etc.). Uniquely, it supports dual serialization modes: (1) full JSON object mode where findings are in a 'findings' array, and (2) streaming JSONL mode where each finding uses '#/$defs/findingRecord' and the final record uses '#/$defs/scanRecord'. The low-level SDK 'WriteJSON' method writes a finding array, indicating a programmatic API layer beneath the CLI.",
+        "best_practice": "1. Add a '$id' URI and explicit schema versioning field ('schema_version': '2.0.0') inside the document to support forward compatibility. 2. The '$defs' section should be the single source of truth for 'findingRecord' and 'scanRecord' \u2014 ensure CLI JSONL consumers reference these same definitions rather than maintaining parallel type definitions in application code. 3. Add 'minItems: 0' on the findings array (allow empty scans) and document the distinction between 'no findings' (clean scan) and 'scan error' (failed scan). 4. Include a 'summary' object with aggregated counts by severity, rule, and file type. 5. Add 'oneOf'/'anyOf' to formally express the JSON vs JSONL mode distinction at the schema level. 6. Ensure 'scan_metadata' includes: tool version, rule set version, scan duration, files scanned count, files skipped count, and entropy threshold used.",
+        "security_concern": "\u2705 No hardcoded secrets detected. \u26a0\ufe0f The findings array may contain file paths, line numbers, and match context \u2014 ensure that any 'context_before'/'context_after' fields in the finding definition are length-limited and cannot accidentally capture full secret values from surrounding lines. \u26a0\ufe0f The '--output -' flag (stdout) mode means findings could be captured in shell history, CI logs, or piped to insecure destinations \u2014 consider adding a 'WARNING: contains security findings' header comment in human-readable output modes. \u26a0\ufe0f The scan metadata may reveal internal repository structure, branch names, and commit hashes \u2014 classify this report as 'SENSITIVE' and add a 'classification' field to the schema. \u26a0\ufe0f JSONL streaming mode implies findings are written before the scan completes \u2014 ensure partial reports are marked with 'complete: false' in metadata.",
+        "migration_suggestion": "1. This schema is the authoritative container and should '$ref' to 'finding.schema.json' for individual finding structure rather than redefining it \u2014 confirm '#/$defs/findingRecord' is a '$ref' to the finding schema, not a copy. 2. Consider adopting SARIF (Static Analysis Results Interchange Format, sarif-schema-2.1.0.json) as an optional output format \u2014 many security platforms (GitHub Advanced Security, Azure DevOps) natively consume SARIF, and a 'findings.schema.json' \u2192 SARIF transform would expand integration options. 3. The SDK 'WriteJSON' method writes a finding array (not the full report object) \u2014 consider deprecating this inconsistency in favor of always emitting the full report schema, using an 'sdk_mode: true' flag in metadata to signal the reduced envelope.",
+        "context": "This implements the 'scan report envelope' pattern used by virtually all security scanning tools (Semgrep, Bandit, Trivy, Grype all have equivalent top-level report schemas). The dual JSON/JSONL mode is a performance-conscious design: JSONL allows consumers to begin processing findings before the scan completes (important for large repos with millions of files). The separation of '$defs/findingRecord' and '$defs/scanRecord' in JSONL mode is the standard 'heterogeneous JSONL stream' pattern, where a type discriminator field (e.g., 'record_type') distinguishes finding records from the terminal metadata record."
+      }
+    ],
+    "overall_insights": {
+      "config_count": 3,
+      "security_issues_found": 0,
+      "hardcoded_secrets_detected": false,
+      "security_warnings": [
+        "\u26a0\ufe0f Verify application-layer enforcement that AnalyzeCredential/ValidateCredential outputs never include raw credential material, even though the schema prohibits it via additionalProperties:false",
+        "\u26a0\ufe0f Scan report files (findings.json) should be classified as SENSITIVE \u2014 they contain file paths, line numbers, match context, and identity data",
+        "\u26a0\ufe0f JSONL streaming mode may produce incomplete reports if scan is interrupted \u2014 implement a 'complete' flag in scanRecord metadata",
+        "\u26a0\ufe0f Context lines captured around findings may inadvertently include adjacent secrets \u2014 enforce max-length constraints on context fields",
+        "\u26a0\ufe0f '--output -' stdout mode findings may be captured in CI logs \u2014 consider a redacted summary mode for log-safe output"
+      ],
+      "consolidation_opportunities": [
+        "Extract shared sub-schemas (location, identity, permissions, timestamp, severity enum) into a 'common.schema.json' or a '$defs' section in findings.schema.json, referenced via '$ref' from finding.schema.json and credential.schema.json",
+        "Formalize the '$ref' relationship between findings.schema.json#/$defs/findingRecord and finding.schema.json to eliminate potential drift between the two definitions",
+        "Align credential.schema.json 'analysis' block with finding.schema.json's optional 'analysis' field \u2014 they likely describe the same credential state object and should share a definition"
+      ],
+      "recommended_actions": [
+        "Add '$id' URIs to all three schemas to enable remote $ref resolution and canonical versioning",
+        "Add 'required' arrays to all three schemas to enforce mandatory field presence at validation time",
+        "Add 'enum' constraints to categorical fields: severity, credential status, record_type discriminator",
+        "Implement a schema registry or bundled schema file ('betterleaks-v2.schema.json') that includes all three schemas as '$defs' for single-file distribution",
+        "Add JSON Schema 'examples' arrays for each schema to serve as both documentation and test fixtures",
+        "Consider publishing a SARIF output adapter to enable native integration with GitHub Advanced Security, GitLab SAST, and Azure DevOps",
+        "Add CI validation step that runs all output fixtures against these schemas using a validator like 'ajv-cli' or 'check-jsonschema' to prevent schema drift",
+        "Document the JSONL stream contract explicitly: record ordering guarantees, type discriminator field name, and behavior on scan interruption"
+      ],
+      "architecture_assessment": "The three-schema architecture is well-designed with clear separation of concerns: finding.schema.json (single finding), credential.schema.json (credential lifecycle), and findings.schema.json (scan report envelope). The dual JSON/JSONL output mode is a sophisticated and practical design. The use of JSON Schema Draft 2020-12 is current best practice. Primary gaps are: missing '$id' URIs, missing 'required' arrays, and potential definition duplication between finding.schema.json and findings.schema.json#/$defs/findingRecord that could cause silent schema drift.",
+      "compliance_notes": "For organizations using Betterleaks in regulated environments: findings reports containing file paths, developer identities, and credential metadata may be subject to GDPR Article 5 (data minimization), SOC2 CC6.1 (logical access), and PCI-DSS Requirement 3 (protect stored cardholder data). Consider adding a 'retention_policy' field to scan metadata and a 'pii_present' boolean to credential reports."
+    }
+  }
+}

@@ -1,0 +1,18 @@
+# Reviewed 2026-10-08: 12 documentation-only false positives in bundled skills.
+# Literal example passwords/URLs, including explicitly unsafe examples.
+# Scope: exact commit, path, rule, and line; skills remain fully scanned.
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/bash/references/SECURITY.md:generic-password:176
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/bash/references/SECURITY.md:generic-password:89
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/connect-mcp-server/SKILL.md:generic-credential-uri:331
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/connect-mcp-server/SKILL.md:generic-credential-uri:338
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/mise-environment-management/SKILL.md:generic-password:199
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/mise-environment-management/SKILL.md:generic-password:286
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/mise-environment-management/SKILL.md:generic-password:404
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/mise-expert/SKILL.md:generic-password:453
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/mise/references/environment-secrets.md:generic-credential-uri:130
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/pdf/SKILL.md:generic-password:216
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/pdf/reference.md:generic-password:340
+62b80a673def127ae8523d93ccab86b1d9bb2725:.agents/skills/sops-setup/references/sops-best-practices.md:generic-credential-uri:297
+# Staged False Positives (added 2026-10-08)
+:.agents/skills/fnox-configuration/SKILL.md:generic-password:384
+:.agents/skills/fnox-security-best-practices/SKILL.md:generic-password:25
