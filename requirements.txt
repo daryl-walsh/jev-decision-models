@@ -1,4 +1,10 @@
-# Verified on torch 2.14.0 / transformers 5.17.0 / Python 3.12, Apple Silicon, CPU and MPS.
-# transformers 4.36 cannot load Qwen2 or Qwen3 and will fail at the tokenizer.
-torch>=2.2
+# llama.cpp edition. Verified on llama-cpp-python 0.3.36 / torch 2.15 / transformers 5.22 /
+# Python 3.13, Linux CPU. llama-cpp-python compiles llama.cpp on install; for an NVIDIA GPU use
+#   CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python
+llama-cpp-python>=0.3.36   # needs kv_unified: one KV cell shared by several sequences
+jinja2>=3.1                # renders the chat template stored in the GGUF
+numpy
+torch>=2.2                 # the arithmetic around the model, plus the two PyTorch files below
+# Only 2_pure_encoding.py (ModernBERT) and extras/rlcd_objective.py (via common_hf.py) load
+# models with transformers. 4.36 cannot load Qwen2 or Qwen3 and fails at the tokenizer.
 transformers>=5.0

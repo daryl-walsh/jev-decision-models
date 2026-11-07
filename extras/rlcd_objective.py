@@ -8,6 +8,8 @@ than the usual next-token loss. Both numbers fall out of one forward pass:
 
 Only the second can push a wrong answer down. Runs on TINY, so it trains in seconds.
 TypeSafe has not published their loss - this is the family it belongs to, not the recipe.
+
+The one file still on PyTorch (common_hf.py): training needs gradients, and llama.cpp has none.
 """
 import os
 import pathlib
@@ -17,7 +19,7 @@ os.environ.setdefault("TINY", "1")
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 import torch
 
-from common import build_trie, load, tree_scores
+from common_hf import build_trie, load, tree_scores
 
 QUESTION = {"refund_requested": {"type": "boolean",
                                  "description": "Whether the customer is asking for money back"}}

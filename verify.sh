@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Runs every lesson in order and reports pass/fail. TINY=1 ./verify.sh for the no-download path.
+# Runs every lesson in order and reports pass/fail. MODEL_GGUF=path/to/model.gguf ./verify.sh to
+# use a GGUF other than models/Qwen3-0.6B-Q8_0.gguf.
 set -u
 PY=${PY:-.venv/bin/python}
 status=0

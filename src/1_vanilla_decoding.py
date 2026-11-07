@@ -6,39 +6,34 @@ whole thing parses. That is one forward pass per token - watch `passes` climb.
 We also score it: keep each token's probability as it comes out, then multiply the ones that wrote
 a value. It looks like a confidence. It isn't, and the last block says why.
 """
-
 import json
-import pathlib
 import re
+import pathlib
 import sys
 import time
-from typing import cast
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parent))
-import torch
-from transformers import PreTrainedTokenizerBase
-
 from common import CONTEXT, SCHEMA, load, naive_prompt
 
 tok, model = load()
-tok = cast(PreTrainedTokenizerBase, tok)
 prompt = naive_prompt(tok, CONTEXT, SCHEMA)
-inputs = tok(prompt, add_special_tokens=False, return_tensors="pt").to(model.device)
-print("prompt tokens:", inputs.input_ids.shape)
+ids = tok.encode(prompt, add_special_tokens=False)
+print("prompt tokens:", len(ids))
 
-eos = model.generation_config.eos_token_id
-stop = set(eos if isinstance(eos, list) else [eos]) | {tok.eos_token_id}
-cache, generated, passes = None, [], 0
+model.clear()
+step, position, generated, passes = ids, 0, [], 0
 text = "{\n  "
 spans = []
 t0 = time.perf_counter()
 
 for _ in range(200):
-    out = model(**inputs, past_key_values=cache, use_cache=True)
-    cache, passes = out.past_key_values, passes + 1
-    probs = out.logits[0, -1].float().softmax(-1)
+    # Append this step's tokens to the cache (sequence 0) and read the last row's logits.
+    logits = model.forward(step, range(position, position + len(step)), [[0]] * len(step),
+                           outputs=[len(step) - 1])[0]
+    position, passes = position + len(step), passes + 1
+    probs = logits.softmax(-1)
     token = int(probs.argmax())
-    if token in stop:
+    if tok.is_eog(token):
         break
     generated.append(token)
     grown = "{\n  " + tok.decode(generated)
@@ -49,17 +44,10 @@ for _ in range(200):
             break
     except ValueError:
         pass
-    inputs = {
-        "input_ids": torch.tensor([[token]], device=model.device),
-        "attention_mask": torch.cat(
-            [inputs["attention_mask"], torch.ones(1, 1, dtype=torch.long, device=model.device)], 1
-        ),
-    }
+    step = [token]
 
 print(text)
-print(
-    f"tokens={len(generated)}  forward_passes={passes}  ms={(time.perf_counter() - t0) * 1000:.0f}"
-)
+print(f"tokens={len(generated)}  forward_passes={passes}  ms={(time.perf_counter() - t0) * 1000:.0f}")
 print("valid json:", isinstance(json.loads(text), dict) if text.strip().endswith("}") else False)
 
 for name in SCHEMA:
@@ -68,21 +56,17 @@ for name in SCHEMA:
         continue
     start = match.end()
     end, quoted = start, False
-    while end < len(text) and (quoted or text[end] not in ",\n}"):
+    while end < len(text) and (quoted or text[end] not in ',\n}'):
         quoted = not quoted if text[end] == '"' and text[end - 1] != "\\" else quoted
         end += 1
     inside = [p for a, b, p in spans if a < end and b > start]
     product = 1.0
     for p in inside:
         product *= p
-    print(
-        f"{name:<9} = {text[start:end].strip():<14} p(path)={product:.3f} over {len(inside)} token(s)"
-        f"  weakest={min(inside, default=1.0):.3f}"
-    )
+    print(f"{name:<9} = {text[start:end].strip():<14} p(path)={product:.3f} over {len(inside)} token(s)"
+          f"  weakest={min(inside, default=1.0):.3f}")
 
-print(
-    "\nThat p(path) is not a decision probability. It normalises over the whole vocabulary, not "
-    "over the allowed values; it multiplies without length normalisation, so long values look "
-    "unlikely; it is conditioned on the fields already written, so field order changes it; and "
-    "the alternatives were never scored at all. Part 2 fixes every one of those."
-)
+print("\nThat p(path) is not a decision probability. It normalises over the whole vocabulary, not "
+      "over the allowed values; it multiplies without length normalisation, so long values look "
+      "unlikely; it is conditioned on the fields already written, so field order changes it; and "
+      "the alternatives were never scored at all. Part 2 fixes every one of those.")

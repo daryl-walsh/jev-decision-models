@@ -14,12 +14,12 @@ import sys
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 import torch
 
-from common import load
+from common import load, run_packed
 from labelled_examples import EXAMPLES  # 32 labelled refund messages
 
-tok, model = load(attn_implementation="eager")
+tok, model = load()
 torch.manual_seed(0)
-HIDDEN = model.config.hidden_size
+HIDDEN = model.hidden_size
 
 
 def pack(state, questions):
@@ -48,20 +48,8 @@ def pack(state, questions):
 def encode(state, questions):
     """Frozen backbone. Returns the decision vector and option vectors for every question."""
     ids, segments, decisions, options = pack(state, questions)
-    length = len(ids)
-    seg = torch.tensor(segments)
-    causal = torch.arange(length).view(-1, 1) >= torch.arange(length).view(1, -1)
-    same = (seg.view(1, -1) == 0) | (seg.view(1, -1) == seg.view(-1, 1))
-    mask = torch.zeros(1, 1, length, length, dtype=model.dtype).masked_fill(
-        ~(causal & same), torch.finfo(model.dtype).min).to(model.device)
-
-    state_length = segments.count(0)
-    positions = torch.tensor([[i if s == 0 else state_length + i - segments.index(s)
-                               for i, s in enumerate(segments)]]).to(model.device)
-
-    out = model(input_ids=torch.tensor([ids], device=model.device), attention_mask=mask,
-                position_ids=positions, output_hidden_states=True)
-    hidden = out.hidden_states[-1][0].float().cpu()
+    # Questions isolated from each other by sequence id, final hidden states instead of logits.
+    hidden = run_packed(model, ids, segments, range(len(ids)), hidden=True)
     return [(hidden[d], hidden[torch.tensor(spans)]) for d, spans in zip(decisions, options)]
 
 

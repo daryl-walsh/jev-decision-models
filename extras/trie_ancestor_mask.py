@@ -6,6 +6,8 @@ answer comes out exactly as if you had decoded it on its own.
 
 The trick for "is this node my ancestor?" is a DFS numbering: k is an ancestor of q when
 start[k] <= start[q] < end[k]. The machinery is build_trie and tree_scores in common.py.
+llama.cpp takes no mask, so tree_scores writes the same rule as sequence ids: one per answer, and
+each node belongs to every answer that runs through it.
 
 The last lines are the proof - every answer re-scored alone, compared against the tree.
 """
@@ -17,7 +19,7 @@ import torch
 
 from common import CONTEXT, SCHEMA, build_trie, load, parallel_prompt, tree_scores
 
-tok, model = load(attn_implementation="eager")
+tok, model = load()
 trie = build_trie(tok, SCHEMA)
 flat = sum(len(s) + len(q) for s, q in trie.paths)
 print(f"trie nodes={len(trie.nodes)}  candidates={len(trie.lengths)}  same tokens laid out flat={flat}")
@@ -33,13 +35,15 @@ for count in trie.counts:
     print(f"{trie.labels[offset][0]:<9} -> {trie.labels[offset + int(probs.argmax())][1]:<12} {table}")
     offset += count
 
-prompt_ids = tok(parallel_prompt(tok, CONTEXT, SCHEMA), add_special_tokens=False).input_ids
+prompt_ids = tok.encode(parallel_prompt(tok, CONTEXT, SCHEMA), add_special_tokens=False)
 worst = 0.0
 for i, (suffix_ids, seq) in enumerate(trie.paths):
     ids = prompt_ids + suffix_ids + seq
-    logprobs = model(torch.tensor([ids], device=model.device)).logits[0].float().log_softmax(-1)
     start = len(ids) - len(seq) - 1
-    independent = float(sum(logprobs[start + j, t] for j, t in enumerate(seq)) / len(seq))
+    model.clear()
+    logprobs = model.forward(ids, range(len(ids)), [[0]] * len(ids),
+                             outputs=range(start, start + len(seq))).log_softmax(-1)
+    independent = float(sum(logprobs[j, t] for j, t in enumerate(seq)) / len(seq))
     delta = abs(float(result.scores[i]) - independent)
     worst = max(worst, delta)
     print(f"  {str(trie.labels[i]):<28} trie={float(result.scores[i]):8.4f} independent={independent:8.4f} d={delta:.5f}")
